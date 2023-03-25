@@ -1,0 +1,4 @@
+io/flutter/plugins/GeneratedPluginRegistrant.java
+ io.flutter.plugins.GeneratedPluginRegistrant
+io/flutter/ninja/jobfinder/BuildConfig.java
+ io.flutter.ninja.jobfinder.BuildConfig
