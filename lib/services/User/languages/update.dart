@@ -15,11 +15,11 @@ class CertificateService {
   };
 
   CertificateService(int userId, int languageId){
-    this.apiUrl = "https://compassionate-mahavira.213-142-157-85.plesk.page/api/v1/$userId/foreign-languages/$int languageId";
+    this.apiUrl = "https://compassionate-mahavira.213-142-157-85.plesk.page/api/v1/$userId/foreign-languages/$languageId";
   }
 
   Future<List<LanguageUpdate>> fetchCertificates() async {
-    final response = await http.get(Uri.parse(apiUrl!),headers: headers);
+    final response = await http.put(Uri.parse(apiUrl!),headers: headers);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       List<LanguageUpdate> certificates = [];

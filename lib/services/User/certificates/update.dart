@@ -20,7 +20,7 @@ class CertificateService {
 
 
   Future<List<CertificateUpdate>> fetchCertificates() async {
-    final response = await http.get(Uri.parse(apiUrl!),headers: headers);
+    final response = await http.put(Uri.parse(apiUrl!),headers: headers);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       List<CertificateUpdate> certificates = [];
