@@ -13,14 +13,19 @@ import 'package:jobfinder/pages/categories.dart';
 import 'package:jobfinder/pages/company.dart';
 import 'package:jobfinder/pages/inbox.dart';
 import 'package:jobfinder/pages/invite_friend.dart';
+import 'package:jobfinder/pages/login.dart';
 import 'package:jobfinder/pages/notification.dart';
 import 'package:jobfinder/pages/profile.dart';
+
+import 'package:jobfinder/services/auth.dart';
 
 class NavBar extends StatelessWidget {
   const NavBar({Key? key}) : super(key: key);
 
+
   @override
   Widget build(BuildContext context) {
+    AuthService _authService = AuthService();
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -117,10 +122,11 @@ class NavBar extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
             onTap: () {
+              _authService.logOut();
               Navigator.push(
                   context,
                   MaterialPageRoute(
-                      builder: (context) => const NotificationScreen()));
+                      builder: (context) => const Login()));
             },
           ),
         ],

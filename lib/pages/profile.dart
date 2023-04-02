@@ -6,6 +6,7 @@
   terms found in the Website https://codecanyon.net/licenses/standard/
   Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
 */
+import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:jobfinder/widget/navbar.dart';
 import '../components/styles.dart';
@@ -36,6 +37,49 @@ class _ProfileState extends State<Profile> {
   bool isCorrect = false;
 
   PlatformFile? pickedFile;
+
+
+  List? _tempListOfCities;
+
+  final _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
+  final TextEditingController textController = new TextEditingController();
+
+  static List _listOfCities = [
+              "Tokyo",
+              "New York",
+              "London",
+              "Paris",
+              "Madrid",
+              "Dubai",
+              "Rome",
+              "Barcelona",
+              "Cologne",
+              "Monte Carlo",
+              "Puebla",
+              "Florence",
+  ];
+
+  String searchValue = '';
+  final Map<int, String> _suggestions01 = {
+    1 : 'AZERBAIJANI',
+    2 : 'ARABIC',
+    3 : 'GERMAN',
+    4 : 'BULGARIAN',
+    5 : 'CHINESE',
+    6 : 'FRENCH',
+    7 : 'PERSIAN',
+    8 : 'ENGLISH',
+    9 : 'ITALIAN',
+    10 : 'SPANISH',
+    11 : 'JAPANESE',
+    12 : 'KOREAN',
+    13 : 'PORTUGUESE',
+    14 : 'RUSSIAN',
+    15 : 'TURKISH',
+    16 : 'GREEK',
+  };
+
+
 
   Future selectFile() async {
     final result = await FilePicker.platform.pickFiles();
@@ -749,23 +793,23 @@ class _ProfileState extends State<Profile> {
                                         Row(
                                           children: [
                                             Expanded(
-                                                child: DropdownButton<String>(
-                                                  value: dropdownValueLicense,
-                                                  icon: const Icon(Icons.arrow_drop_down),
-                                                  style: const TextStyle(color: Colors.black87),
-                                                  onChanged: (String? newValue) {
-                                                    setState(() {
-                                                      dropdownValueLicense = newValue!;
-                                                    });
+                                                child: ElevatedButton(
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: Colors.transparent,
+                                                    foregroundColor: Colors.black,
+                                                    elevation: 0,
+                                                    side: BorderSide(
+                                                      width: 1.0,
+                                                      color: Colors.black.withOpacity(0.1)
+                                                    )
+
+                                                  ),
+                                                  child: Row(children :[Text('Select',style:TextStyle(fontSize: 13) ,),] ),
+                                                  onPressed: (){
+                                                    _showModal(context);
                                                   },
-                                                  items: <String>['Tecilli', 'Yapıldı','Muaf']
-                                                      .map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                )),
+                                                ),
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -957,19 +1001,113 @@ class _ProfileState extends State<Profile> {
     );
   }
 
-  Widget _buildSkils(val) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      margin: const EdgeInsets.only(right: 10, bottom: 10),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: <Color>[appColor2, appColor]),
-        borderRadius: BorderRadius.all(Radius.circular(4.0)),
-      ),
-      child: btnText(val),
-    );
+  void _showModal(context) {
+    showModalBottomSheet(
+        isScrollControlled: true,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
+        ),
+        context: context,
+        builder: (context) {
+          //3
+          return StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+                return DraggableScrollableSheet(
+                    expand: false,
+                    builder:
+                        (BuildContext context, ScrollController scrollController) {
+                      return Column(children: [
+                        Padding(
+                            padding: EdgeInsets.all(8),
+                            child: Row(children: [
+                              Expanded(
+                                  child: TextField(
+                                      controller: textController,
+                                      decoration: InputDecoration(
+                                        contentPadding: EdgeInsets.all(8),
+                                        border: new OutlineInputBorder(
+                                          borderRadius:
+                                          new BorderRadius.circular(15.0),
+                                          borderSide: new BorderSide(),
+                                        ),
+                                        prefixIcon: Icon(Icons.search),
+                                      ),
+                                      onChanged: (value) {
+                                        //4
+                                        setState(() {
+                                          _tempListOfCities =
+                                              _buildSearchList(value);
+                                        });
+                                      })),
+                              IconButton(
+                                  icon: Icon(Icons.close),
+                                  color: Color(0xFF1F91E7),
+                                  onPressed: () {
+                                    setState(() {
+                                      textController.clear();
+                                      _tempListOfCities?.clear();
+                                    });
+                                  }),
+                            ])),
+                        Expanded(
+                          child: ListView.separated(
+                              controller: scrollController,
+                              //5
+                              itemCount: (_tempListOfCities != null &&
+                                  _tempListOfCities!.length > 0)
+                                  ? _tempListOfCities!.length
+                                  : _listOfCities.length,
+                              separatorBuilder: (context, int) {
+                                return Divider();
+                              },
+                              itemBuilder: (context, index) {
+                                return InkWell(
+
+                                  //6
+                                    child: (_tempListOfCities != null &&
+                                        _tempListOfCities!.length > 0)
+                                        ? _showBottomSheetWithSearch(
+                                        index, _tempListOfCities!)
+                                        : _showBottomSheetWithSearch(
+                                        index, _listOfCities),
+                                    onTap: () {
+                                      //7
+                                      _scaffoldKey.currentState!.showSnackBar(
+                                          SnackBar(
+                                              behavior: SnackBarBehavior.floating,
+                                              content: Text((_tempListOfCities !=
+                                                  null &&
+                                                  _tempListOfCities!.length > 0)
+                                                  ? _tempListOfCities![index]
+                                                  : _listOfCities[index])));
+
+                                      Navigator.of(context).pop();
+                                    });
+                              }),
+                        )
+                      ]);
+                    });
+              });
+        });
   }
+
+  Widget _showBottomSheetWithSearch(int index, List listOfCities) {
+    return Text(listOfCities[index],
+        style: TextStyle(color: Colors.black, fontSize: 16),textAlign: TextAlign.center);
+  }
+  List _buildSearchList(String userSearchTerm) {
+    List _searchList = [];
+
+    for (int i = 0; i < _listOfCities.length; i++) {
+      String name = _listOfCities[i];
+      if (name.toLowerCase().contains(userSearchTerm.toLowerCase())) {
+        _searchList.add(_listOfCities[i]);
+      }
+    }
+    return _searchList;
+  }
+
+
+
 
 }

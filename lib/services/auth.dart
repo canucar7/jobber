@@ -63,6 +63,27 @@ class AuthService{
     }
   }
 
+  logOut() async{
+
+    try{
+
+      Response response = await post(
+          Uri.parse("https://compassionate-mahavira.213-142-157-85.plesk.page/api/v1/auth/logout"),
+
+      );
+
+      if(response.statusCode == 200){
+        var data = jsonDecode(response.body.toString());
+        print(data);
+        print("account logout successfully");
+      }else{
+        print("failed");
+      }
+    }catch(e){
+      print(e.toString());
+    }
+  }
+
 
 
 /*
