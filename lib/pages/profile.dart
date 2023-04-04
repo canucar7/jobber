@@ -8,12 +8,18 @@
 */
 import 'package:easy_search_bar/easy_search_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:jobfinder/models/Auth/Login.dart';
+import 'package:jobfinder/pages/login.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/User/certificates/store.dart';
 import 'package:jobfinder/widget/navbar.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 import 'package:file_picker/file_picker.dart';
 
 class Profile extends StatefulWidget {
   static const String id = 'Profile';
+
 
   const Profile({Key? key}) : super(key: key);
 
@@ -30,6 +36,16 @@ class _ProfileState extends State<Profile> {
   String dropdownValueLicense = 'Yapıldı';
   String dropdownValueCountry = 'India';
   String dropdownValueZip = '85001';
+
+
+  LoginModel? user;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    user = Provider.of<UserProvider>(context).auth;
+  }
+
+
 
 
   List<String> list = <String>['Tecilli', 'Muaf', 'Yapıldı'];
@@ -81,6 +97,8 @@ class _ProfileState extends State<Profile> {
 
 
 
+
+
   Future selectFile() async {
     final result = await FilePicker.platform.pickFiles();
     if(result == null) return;
@@ -108,10 +126,13 @@ class _ProfileState extends State<Profile> {
         //   centerTitle: true,
         //   elevation: 0,
         // ),
-        body: _buildBody());
+        body: _buildBody(context));
   }
 
-  Widget _buildBody() {
+  Widget _buildBody(BuildContext context) {
+    print(user!.accessToken);
+
+
     return SingleChildScrollView(
         child: Column(
       children: [
@@ -728,7 +749,10 @@ class _ProfileState extends State<Profile> {
                                     ),
                                     SizedBox(height: 40,),
                                     ElevatedButton(
-                                        onPressed: (){},
+                                        onPressed: (){
+                                          CertificateStoreService service =  CertificateStoreService(context.read<UserProvider>().auth!.accessToken,context.read<UserProvider>().auth!.user.id);
+                                          service.storeCertificates("şükrü deneme","patika","2023-09-20");
+                                        },
                                         child: Text("SAVE")),
                                   ],
                                 )

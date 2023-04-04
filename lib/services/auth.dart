@@ -3,11 +3,20 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
+import 'package:jobfinder/models/Auth/Login.dart';
 import 'package:jobfinder/pages/home.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:provider/provider.dart';
+
 class AuthService{
 
-  signIn(String email, password) async{
+  final UserProvider _userProvider;
+
+  AuthService(this._userProvider);
+
+
+  signIn(String email, String password) async{
 
     try{
 
@@ -19,9 +28,12 @@ class AuthService{
           }
       );
 
+      print(response.body);
       if(response.statusCode == 200){
         var data = jsonDecode(response.body.toString());
         print(data);
+        LoginModel user = LoginModel.fromJson(data);
+        _userProvider.setAuth(user);
         print("account login successfully");
       }else{
         print("failed");

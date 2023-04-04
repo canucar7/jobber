@@ -11,8 +11,10 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:jobfinder/pages/home.dart';
 import 'package:jobfinder/pages/login.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/text_btn.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 import 'package:http/http.dart';
 import 'package:jobfinder/services/auth.dart';
@@ -33,7 +35,7 @@ class _RegisterState extends State<Register> {
   TextEditingController nameController = TextEditingController();
 
 
-  AuthService _authService = AuthService();
+
 
   bool passwordVisible=false;
 
@@ -97,6 +99,7 @@ class _RegisterState extends State<Register> {
   }
 
   Widget _buildLoginDetail() {
+    AuthService _authService = AuthService(context.read<UserProvider>());
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

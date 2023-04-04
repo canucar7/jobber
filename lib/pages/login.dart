@@ -12,9 +12,11 @@ import 'package:flutter/material.dart';
 import 'package:jobfinder/pages/forgot_password.dart';
 import 'package:jobfinder/pages/home.dart';
 import 'package:jobfinder/pages/register.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/auth.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/text_btn.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 
 
@@ -40,7 +42,6 @@ class _LoginState extends State<Login> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
 
-  AuthService _authService = AuthService();
 
   bool _isLoading = false;
 
@@ -102,6 +103,7 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildLoginDetail() {
+    AuthService _authService = AuthService(context.read<UserProvider>());
     return Center(
       child: Container(
         width: double.infinity,
@@ -138,6 +140,7 @@ class _LoginState extends State<Login> {
                   ),
                   SizedBox(height: 30,),
                   TextFormField(
+                    controller: passwordController,
                     obscureText: passwordVisible,
                     decoration: InputDecoration(
                       hintText: 'Password',

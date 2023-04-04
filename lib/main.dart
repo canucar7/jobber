@@ -1,18 +1,19 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
+
 import 'package:flutter/material.dart';
 import 'package:jobfinder/pages/login.dart';
 import 'package:jobfinder/pages/slider.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 
+
 void main() {
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => UserProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

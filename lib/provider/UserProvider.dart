@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 
 import '../models/Auth/Login.dart';
 
-class TokenProvider extends ChangeNotifier {
+class UserProvider extends ChangeNotifier {
   LoginModel? _auth;
 
   LoginModel? get auth => _auth;

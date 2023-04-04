@@ -1,26 +1,30 @@
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/User/Certificate/Certificate_Store.dart';
 
 
-class CertificateService {
+class CertificateStoreService {
 
   String? apiUrl;
 
-  final headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwczovL2NvbXBhc3Npb25hdGUtbWFoYXZpcmEuMjEzLTE0Mi0xNTctODUucGxlc2sucGFnZS9hcGkvdjEvYXV0aC9sb2dpbiIsImlhdCI6MTY4MDQ1MDUyMiwiZXhwIjoxNjgwNDU0MTIyLCJuYmYiOjE2ODA0NTA1MjIsImp0aSI6ImdHR012M2FRZ1ZtODlYOTkiLCJzdWIiOiIxIiwicHJ2IjoiYjkxMjc5OTc4ZjExYWE3YmM1NjcwNDg3ZmZmMDFlMjI4MjUzZmU0OCIsImRhdGEiOnsidXNlcklkIjoxfX0.5CQa2J5CtA56n5qCBtSA2dSr0bLTb7KsSD-Wu6Ny_mo',
-  };
+  var headers;
 
-  CertificateService(int userId){
+  CertificateStoreService(String token,int userId){
     this.apiUrl = "https://compassionate-mahavira.213-142-157-85.plesk.page/api/v1/$userId/certificates";
+    this.headers = {
+      'Content-type' : 'application/json',
+      'Authorization': 'Bearer $token',
+    };
   }
 
 
-  Future<List<CertificateStore>> fetchCertificates() async {
-    final response = await http.post(Uri.parse(apiUrl!),headers: headers);
+  Future<List<CertificateStore>> storeCertificates(String name, String institution,String date) async {
+    final response = await http.post(Uri.parse(apiUrl!),headers: headers,body: {"name":name,"institution":institution,"date":date });
+    print(response.body);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       List<CertificateStore> certificates = [];

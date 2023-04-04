@@ -16,8 +16,10 @@ import 'package:jobfinder/pages/invite_friend.dart';
 import 'package:jobfinder/pages/login.dart';
 import 'package:jobfinder/pages/notification.dart';
 import 'package:jobfinder/pages/profile.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
 
 import 'package:jobfinder/services/auth.dart';
+import 'package:provider/provider.dart';
 
 class NavBar extends StatelessWidget {
   const NavBar({Key? key}) : super(key: key);
@@ -25,7 +27,7 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AuthService _authService = AuthService();
+    AuthService _authService = AuthService(context.read<UserProvider>());
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
