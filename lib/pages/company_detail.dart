@@ -24,15 +24,66 @@ class CompanyDetail extends StatefulWidget {
 
 class _CompanyDetailState extends State<CompanyDetail> {
   final Set<Marker> _markers = {};
-  void _onMapCreated(GoogleMapController controller) {
+
+  void _onMapCreated(GoogleMapController controller) async {
+    // Map Style
+    String style = '''
+    [
+      {
+        "featureType": "all",
+        "elementType": "all",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "labels.text",
+        "stylers": [
+          { "visibility": "on" }
+        ]
+      }
+    ]
+  ''';
+
+    BitmapDescriptor customMarker = await getCustomMarker();
+
     setState(() {
       _markers.add(
-        const Marker(
+        Marker(
           markerId: MarkerId('Id-1'),
-          position: LatLng(21.5397106, 71.8215543),
+          position: LatLng(39.80000268029149, 30.5071030302915),
+          icon: customMarker,
+        ),
+      );
+      _markers.add(
+        Marker(
+          markerId: MarkerId('Id-2'),
+          position: LatLng(39.7851773302915, 30.5171550302915),
+          icon: customMarker,
+        ),
+      );
+      _markers.add(
+        Marker(
+          markerId: MarkerId('Id-3'),
+          position: LatLng(39.778549,30.518051),
+          icon: customMarker,
         ),
       );
     });
+
+    //controller.setMapStyle(style);
+
+  }
+
+  Future<BitmapDescriptor> getCustomMarker() async {
+    final ImageConfiguration config = ImageConfiguration(devicePixelRatio: 2.5);
+    final BitmapDescriptor customMarker = await BitmapDescriptor.fromAssetImage(
+    config,
+    'assets/images/map-pin.png',
+    );
+    print(customMarker);
+    return customMarker;
   }
 
   @override
@@ -228,16 +279,26 @@ class _CompanyDetailState extends State<CompanyDetail> {
           const SizedBox(height: 8),
           blackHeadingSmall('Destination Map'.toUpperCase()),
           Container(
-            height: 160,
+            height: 640,
             margin: const EdgeInsets.symmetric(vertical: 10),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(6)),
             ),
             child: GoogleMap(
-              onMapCreated: _onMapCreated,
-              markers: _markers,
+              mapType: MapType.normal,
               initialCameraPosition: const CameraPosition(
-                  target: LatLng(21.5397106, 71.8215543), zoom: 15),
+                  target: LatLng(39.8003513, 30.5063187), zoom: 20),
+              markers: _markers,
+              onMapCreated: _onMapCreated,
+              myLocationEnabled: true,
+              compassEnabled: true,
+              zoomControlsEnabled: true,
+              cameraTargetBounds: CameraTargetBounds(
+                LatLngBounds(
+                  southwest: LatLng(39.3503, 30.0024), // Güneybatı köşesi
+                  northeast: LatLng(39.8707, 31.5218), // Kuzeydoğu köşesi
+                ),
+              ),
             ),
           ),
           const SizedBox(height: 8),
