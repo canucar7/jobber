@@ -7,20 +7,20 @@
   Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
 */
 import 'package:flutter/material.dart';
-import 'package:jobfinder/pages/change_password.dart';
+import 'package:jobfinder/pages/auth/login.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
-import '../components/styles.dart';
+import '../../components/styles.dart';
 
-class ForgotPassword extends StatefulWidget {
-  static const String id = 'ForgotPassword';
+class ChangePassword extends StatefulWidget {
+  static const String id = 'ChangePassword';
 
-  const ForgotPassword({Key? key}) : super(key: key);
+  const ChangePassword({Key? key}) : super(key: key);
 
   @override
-  _ForgotPasswordState createState() => _ForgotPasswordState();
+  _ChangePasswordState createState() => _ChangePasswordState();
 }
 
-class _ForgotPasswordState extends State<ForgotPassword> {
+class _ChangePasswordState extends State<ChangePassword> {
   @override
   void initState() {
     super.initState();
@@ -30,8 +30,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: _buildBody(),
       appBar: _buildAppBar(),
+      body: _buildBody(),
     );
   }
 
@@ -57,6 +57,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   Widget _buildHeader() {
     return Container(
         width: double.infinity,
+        height: MediaQuery.of(context).size.height * 0.35,
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
         decoration: const BoxDecoration(
             gradient: LinearGradient(
@@ -72,7 +73,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           children: [
             logoImg(),
             const Text(
-              'Forgot Password',
+              'Change Password',
               style: TextStyle(
                   color: Colors.white, fontSize: 26, fontFamily: 'medium'),
             ),
@@ -99,21 +100,20 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               padding: const EdgeInsets.all(24),
               child: Column(
                 children: [
-                  textField('Email Address', Icons.mail_outline),
+                  textField('Password', Icons.mail_outline),
+                  textField('Confirm Password', Icons.mail_outline),
                   const SizedBox(height: 20),
                 ],
               ),
             ),
             MyElevatedButton(
                 onPressed: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const ChangePassword()));
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => const Login()));
                 },
                 text: const Icon(Icons.arrow_forward),
                 height: 40,
-                width: 40)
+                width: 40),
           ],
         ),
       ),

@@ -1,23 +1,15 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:jobfinder/pages/forgot_password.dart';
+import 'package:jobfinder/pages/auth/forgot_password.dart';
 import 'package:jobfinder/pages/home.dart';
-import 'package:jobfinder/pages/register.dart';
+import 'package:jobfinder/pages/auth/register.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
-import 'package:jobfinder/services/auth.dart';
+import 'package:jobfinder/services/Auth/AuthService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/text_btn.dart';
 import 'package:provider/provider.dart';
-import '../components/styles.dart';
+import '../../components/styles.dart';
 
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -46,9 +38,6 @@ class _LoginState extends State<Login> {
   bool _isLoading = false;
 
   bool passwordVisible=false;
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -189,8 +178,13 @@ class _LoginState extends State<Login> {
                   setState(() {
                     _isLoading = true;
                   });
-                  _authService.signIn(emailController.text.toString(), passwordController.text.toString()).then((value) {
-                    return Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
+                  _authService.login(context, emailController.text.toString(), passwordController.text.toString()).then((value) {
+                    setState(() {
+                      _isLoading = false;
+                    });
+                    if (value) {
+                      return Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
+                    }
                   });
                 },
                 text: const Icon(Icons.arrow_forward),

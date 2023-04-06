@@ -1,23 +1,15 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:jobfinder/pages/home.dart';
-import 'package:jobfinder/pages/login.dart';
+import 'package:jobfinder/pages/auth/login.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/text_btn.dart';
 import 'package:provider/provider.dart';
-import '../components/styles.dart';
+import '../../components/styles.dart';
 import 'package:http/http.dart';
-import 'package:jobfinder/services/auth.dart';
+import 'package:jobfinder/services/Auth/AuthService.dart';
 
 class Register extends StatefulWidget {
   static const String id = 'Register';
@@ -29,13 +21,9 @@ class Register extends StatefulWidget {
 }
 
 class _RegisterState extends State<Register> {
-
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController nameController = TextEditingController();
-
-
-
 
   bool passwordVisible=false;
 
@@ -193,18 +181,31 @@ class _RegisterState extends State<Register> {
           ),
           MyElevatedButton(
               onPressed: () {
-
-                _authService.register(nameController.text.toString(),emailController.text.toString(), passwordController.text.toString());
-                /*
-                Navigator.push(context,
-                      MaterialPageRoute(builder: (context) => const Home()));
-                 */
+                _authService.register(context, nameController.text.toString(),emailController.text.toString(), passwordController.text.toString()).then((value) {
+                  if(value){
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Kayıt işlemi başarılı. Lütfen giriş yapınız.'),
+                          backgroundColor: Colors.green,
+                          duration: Duration(seconds: 5),
+                        )
+                    );
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const Login()));
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Kayıt işlemi başarısız.'),
+                          backgroundColor: Colors.red,
+                          duration: Duration(seconds: 2),
+                        )
+                    );
+                  }
+                });
               },
               text: const Icon(Icons.arrow_forward),
               height: 40,
               width: 40),
-
-
           Container(
             padding: const EdgeInsets.all(24),
             height: 100,

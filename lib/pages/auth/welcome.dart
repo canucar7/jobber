@@ -7,9 +7,9 @@
   Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
 */
 import 'package:flutter/material.dart';
-import 'package:jobfinder/pages/login.dart';
+import 'package:jobfinder/pages/auth/login.dart';
 import 'package:jobfinder/widget/text_btn.dart';
-import '../components/styles.dart';
+import '../../components/styles.dart';
 
 class Welcome extends StatefulWidget {
   static const String id = 'Welcome';

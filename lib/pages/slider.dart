@@ -8,7 +8,7 @@
 */
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:jobfinder/pages/welcome.dart';
+import 'package:jobfinder/pages/auth/welcome.dart';
 import 'package:jobfinder/widget/text_btn.dart';
 
 import '../components/styles.dart';
