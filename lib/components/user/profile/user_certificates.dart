@@ -97,11 +97,9 @@ class _UserCertificatesState extends State<UserCertificates> {
           );
         } else if (snapshot.hasData) {
           final certificatess = snapshot.data!;
-          print(certificatess.toString());
           return ListView.builder(
             itemCount: certificatess.length,
             itemBuilder: (context, index) {
-              print(certificatess[index].name);
               final certificate = certificatess[index];
               return ListTile(
                 title: Text(certificate.name),
