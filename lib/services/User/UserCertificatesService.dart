@@ -27,17 +27,13 @@ class UserCertificatesService extends AbstractService {
     }
   }
 
-  Future<UserCertificate> store(String name, String institution,String date) async {
+  Future<UserCertificate> store(body) async {
     final response = await http.post(
         Uri.parse(apiUrl),
         headers: headers,
-        body: {
-          "name": name,
-          "institution": institution,
-          "date": date
-        });
+        body: body);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       final jsonData = json.decode(response.body);
 
       return UserCertificate.fromJson(jsonData['data']);
@@ -47,8 +43,9 @@ class UserCertificatesService extends AbstractService {
   }
 
   Future<UserCertificate> show(int certificateId) async {
-    apiUrl = apiUrl + "/$certificateId";
-    final response = await http.get(Uri.parse(apiUrl),headers: headers);
+    String requestUrl = apiUrl + "/$certificateId";
+
+    final response = await http.get(Uri.parse(requestUrl),headers: headers);
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
@@ -59,23 +56,27 @@ class UserCertificatesService extends AbstractService {
     }
   }
 
-  Future<UserCertificate> update(int certificateId) async {
-    apiUrl = apiUrl + "/$certificateId";
-    final response = await http.put(Uri.parse(apiUrl),headers: headers);
+  Future<UserCertificate> update(int certificateId, body) async {
+    String requestUrl = apiUrl + "/$certificateId";
+
+    final response = await http.put(
+        Uri.parse(requestUrl),
+        headers: headers,
+        body: body);
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
 
       return UserCertificate.fromJson(jsonData['data']);
     } else {
-      throw Exception('Failed to load certificates');
+      throw Exception('Failed to update certificates');
     }
   }
 
   Future<bool> destroy(int certificateId) async {
-    apiUrl = apiUrl + "/$certificateId";
-    final response = await http.delete(Uri.parse(apiUrl),headers: headers);
+    String requestUrl = apiUrl + "/$certificateId";
 
+    final response = await http.delete(Uri.parse(requestUrl),headers: headers);
     if (response.statusCode == 200) {
       return true;
     } else {

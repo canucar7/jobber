@@ -1,9 +1,12 @@
+import 'package:date_time_picker/date_time_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:jobfinder/components/styles.dart';
 import 'package:jobfinder/models/User/UserCertificate.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/User/UserCertificatesService.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart';
+
 
 class UserCertificates extends StatefulWidget {
   const UserCertificates({Key? key}) : super(key: key);
@@ -30,11 +33,17 @@ class _UserCertificatesState extends State<UserCertificates> {
     certificates = _userCertificatesService.index();
   }
 
+  void _updateCertificates() {
+    setState(() {
+      certificates = _userCertificatesService.index();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    print(certificates.toString());
     return Column(
       children: [
-
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Row(
@@ -46,7 +55,7 @@ class _UserCertificatesState extends State<UserCertificates> {
         ),
         Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
             margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -60,76 +69,182 @@ class _UserCertificatesState extends State<UserCertificates> {
             ),
             child: Column(
               children: [
-                textFieldNo('Home Address'),
-                SizedBox(height: 10,),
-                Row(
+                _listBuilder(),
+              Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        child: Text('ADD'),
+                        child: Text('Add'),
                         onPressed: (){
-                          showModalBottomSheet(context: context, builder: (BuildContext context) {
-                            return Container(
-                                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                                height: MediaQuery.of(context).size.height * .60,
-                                child : Column(
-                                  children: [
-                                    textFieldNo('Certificate Name'),
-                                    textFieldNo('Institution Name'),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 20),
-                                        greyTextSmall('Date'),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                                child: DropdownButton<String>(
-                                                  value: dropdownValueLicense,
-                                                  icon: const Icon(Icons.arrow_drop_down),
-                                                  style: const TextStyle(color: Colors.black87),
-                                                  onChanged: (String? newValue) {
-                                                    setState(() {
-                                                      dropdownValueLicense = newValue!;
-                                                    });
-                                                  },
-                                                  items: <String>['Tecilli', 'Yapıldı', 'Muaf']
-                                                      .map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                )),
-                                          ],
-                                        ),
-
-                                      ],
-                                    ),
-                                    SizedBox(height: 40,),
-                                    ElevatedButton(
-                                        onPressed: (){
-                                          //CertificateStoreService service =  CertificateStoreService(context.read<UserProvider>().auth!.accessToken,context.read<UserProvider>().auth!.user.id);
-                                          //service.storeCertificates("şükrü deneme","patika","2023-09-20");
-                                        },
-                                        child: Text("SAVE")),
-                                  ],
-                                )
-                            );
-                          }
-                          );
+                          _showModal(false);
                         },
                       ),
                     ),
                   ],
                 ),
-
-
                 const SizedBox(height: 10),
               ],
             )),
       ],
+    );
+  }
+
+  Widget _listBuilder() {
+    return FutureBuilder<List<UserCertificate>>(
+      future: certificates,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        } else if (snapshot.hasData) {
+          final certificatess = snapshot.data!;
+          print(certificatess.toString());
+          return ListView.builder(
+            itemCount: certificatess.length,
+            itemBuilder: (context, index) {
+              print(certificatess[index].name);
+              final certificate = certificatess[index];
+              return ListTile(
+                title: Text(certificate.name),
+                trailing: Wrap(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        _showModal(true, certificate);
+                      },
+                      child: Icon(Icons.edit_calendar_outlined),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        _showDeleteConfirmationDialog(certificates, certificate);
+                      },
+                      child: Icon(Icons.delete),
+                    ),
+                  ],
+                ),
+              );
+            },
+            shrinkWrap: true,
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text('${snapshot.error}'));
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
+    );
+  }
+
+  void _showModal(bool isUpdate, [UserCertificate? certificate]) {
+    final certificateNameController = TextEditingController();
+    final institutionNameController = TextEditingController();
+    String dateString = (certificate?.issueDate).toString();
+
+    if (isUpdate) {
+      certificateNameController.text = certificate!.name;
+      institutionNameController.text = certificate.institution;
+    }
+
+    showModalBottomSheet(context: context, builder: (BuildContext context) {
+        return StatefulBuilder(builder: (context, setState) {
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: certificateNameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Certificate Name',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: institutionNameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Institution Name',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DateTimePicker(
+                  type: DateTimePickerType.date,
+                  initialValue: dateString,
+                  firstDate: DateTime(2000),
+                  lastDate: DateTime(2100),
+                  dateLabelText: 'Select Date',
+                  onChanged: (val) {
+                    dateString = val;
+                  },
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    final name = certificateNameController.text;
+                    final institution = institutionNameController.text;
+                    final date = dateString;
+
+                    if (name.isNotEmpty && institution.isNotEmpty) {
+                      final infoCertificate = {
+                        "name": name,
+                        "institution": institution,
+                        "issue_date": date,
+                      };
+                      if (isUpdate) {
+                        _userCertificatesService.update(certificate!.id, infoCertificate).then((value) => {
+                          _updateCertificates(),
+                          Navigator.pop(context),
+                      });
+                      } else {
+                        _userCertificatesService.store(infoCertificate).then((value) => {
+                          _updateCertificates(),
+                          Navigator.pop(context),
+                        });
+                      }
+
+                    }
+                  },
+                  child: Text(isUpdate ? 'Update' : 'Save'),
+                ),
+                const SizedBox(height: 40,),
+              ],
+            ),
+          );
+
+        });
+      },
+    );
+  }
+
+  void _showDeleteConfirmationDialog(certificates, UserCertificate certificate) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete Certificate"),
+          content: const Text("Are you sure you want to delete this certificate?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("CANCEL"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                "DELETE",
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                _userCertificatesService.destroy(certificate.id).then((value) => {
+                  _updateCertificates(),
+                Navigator.of(context).pop(),
+                });
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }

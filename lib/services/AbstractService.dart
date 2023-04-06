@@ -3,7 +3,7 @@ import 'package:jobfinder/config.dart';
 abstract class AbstractService {
   String apiUrl = Config.apiUrl;
   final headers = {
-    'Content-Type': 'application/json',
+    'Accept': 'application/json',
   };
 
   int? userId;

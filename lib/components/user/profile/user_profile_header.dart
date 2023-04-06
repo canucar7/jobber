@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:jobfinder/components/styles.dart';
+import 'package:jobfinder/models/Auth/Login.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:provider/provider.dart';
 
 class UserProfileHeader extends StatefulWidget {
   const UserProfileHeader({Key? key}) : super(key: key);
@@ -11,6 +14,8 @@ class UserProfileHeader extends StatefulWidget {
 class _UserProfileHeaderState extends State<UserProfileHeader> {
   @override
   Widget build(BuildContext context) {
+    LoginModel? _providerAuth = context.read<UserProvider>().auth;
+
     return Container(
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
         width: double.infinity,
@@ -49,14 +54,14 @@ class _UserProfileHeaderState extends State<UserProfileHeader> {
               radius: 40,
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Admin',
+            Text(
+              _providerAuth!.user.name,
               style: TextStyle(
                   fontSize: 18, fontFamily: 'medium', color: Colors.white),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'admin@hotmail.com',
+            Text(
+              _providerAuth!.user.email,
               style: TextStyle(fontSize: 14, color: Colors.white),
             ),
             const SizedBox(height: 10),
