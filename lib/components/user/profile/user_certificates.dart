@@ -5,7 +5,6 @@ import 'package:jobfinder/models/User/UserCertificate.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/User/UserCertificatesService.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
 
 class UserCertificates extends StatefulWidget {
@@ -41,7 +40,6 @@ class _UserCertificatesState extends State<UserCertificates> {
 
   @override
   Widget build(BuildContext context) {
-    print(certificates.toString());
     return Column(
       children: [
         Container(
