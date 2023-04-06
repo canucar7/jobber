@@ -13,12 +13,12 @@ import 'package:jobfinder/pages/categories.dart';
 import 'package:jobfinder/pages/company.dart';
 import 'package:jobfinder/pages/inbox.dart';
 import 'package:jobfinder/pages/invite_friend.dart';
-import 'package:jobfinder/pages/login.dart';
+import 'package:jobfinder/pages/auth/login.dart';
 import 'package:jobfinder/pages/notification.dart';
-import 'package:jobfinder/pages/profile.dart';
+import 'package:jobfinder/pages/user/profile.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 
-import 'package:jobfinder/services/auth.dart';
+import 'package:jobfinder/services/Auth/AuthService.dart';
 import 'package:provider/provider.dart';
 
 class NavBar extends StatelessWidget {
