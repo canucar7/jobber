@@ -1,11 +1,7 @@
 import 'package:http/http.dart' as http;
-import 'package:jobfinder/models/User/Certificate/Certificate_Destroy.dart';
 import 'dart:convert';
 
-import 'package:jobfinder/models/User/Certificate/Certificate_Index.dart';
-import 'package:jobfinder/models/User/Certificate/Certificate_Show.dart';
-import 'package:jobfinder/models/User/Certificate/Certificate_Store.dart';
-import 'package:jobfinder/models/User/Certificate/Certificate_Update.dart';
+import 'package:jobfinder/models/User/UserCertificate.dart';
 import 'package:jobfinder/services/AbstractService.dart';
 
 class UserCertificatesService extends AbstractService {
@@ -15,14 +11,14 @@ class UserCertificatesService extends AbstractService {
   @override
   String get apiUrl => super.apiUrl + "/$userId/certificates";
 
-  Future<List<CertificateIndex>> index() async {
+  Future<List<UserCertificate>> index() async {
     final response = await http.get(Uri.parse(apiUrl),headers: headers);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
 
-      List<CertificateIndex> certificates = [];
+      List<UserCertificate> certificates = [];
       for (var certificate in jsonData['data']) {
-        certificates.add(CertificateIndex.fromJson(certificate));
+        certificates.add(UserCertificate.fromJson(certificate));
       }
 
       return certificates;
@@ -31,72 +27,57 @@ class UserCertificatesService extends AbstractService {
     }
   }
 
-  Future<List<CertificateStore>> storeCertificates(String name, String institution,String date) async {
-    final response = await http.post(Uri.parse(apiUrl),headers: headers,body: {"name":name,"institution":institution,"date":date });
+  Future<UserCertificate> store(String name, String institution,String date) async {
+    final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: headers,
+        body: {
+          "name": name,
+          "institution": institution,
+          "date": date
+        });
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
 
-      List<CertificateStore> certificates = [];
-      for (var certificate in jsonData['data']) {
-        certificates.add(CertificateStore.fromJson(certificate));
-      }
-
-      return certificates;
+      return UserCertificate.fromJson(jsonData['data']);
     } else {
-      throw Exception('Failed to load certificates');
+      throw Exception('Failed to store certificates');
     }
   }
 
-  Future<List<CertificateShow>> show(int certificateId) async {
+  Future<UserCertificate> show(int certificateId) async {
     apiUrl = apiUrl + "/$certificateId";
     final response = await http.get(Uri.parse(apiUrl),headers: headers);
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
 
-      List<CertificateShow> certificates = [];
-      for (var certificate in jsonData['data']) {
-        certificates.add(CertificateShow.fromJson(certificate));
-      }
-
-      return certificates;
+      return UserCertificate.fromJson(jsonData['data']);
     } else {
       throw Exception('Failed to load certificates');
     }
   }
 
-  Future<List<CertificateUpdate>> update(int certificateId) async {
+  Future<UserCertificate> update(int certificateId) async {
     apiUrl = apiUrl + "/$certificateId";
     final response = await http.put(Uri.parse(apiUrl),headers: headers);
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
 
-      List<CertificateUpdate> certificates = [];
-      for (var certificate in jsonData['data']) {
-        certificates.add(CertificateUpdate.fromJson(certificate));
-      }
-
-      return certificates;
+      return UserCertificate.fromJson(jsonData['data']);
     } else {
       throw Exception('Failed to load certificates');
     }
   }
 
-  Future<List<CertificateDestroy>> destroy(int certificateId) async {
+  Future<bool> destroy(int certificateId) async {
     apiUrl = apiUrl + "/$certificateId";
     final response = await http.delete(Uri.parse(apiUrl),headers: headers);
 
     if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-
-      List<CertificateDestroy> certificates = [];
-      for (var certificate in jsonData['data']) {
-        certificates.add(CertificateDestroy.fromJson(certificate));
-      }
-
-      return certificates;
+      return true;
     } else {
       throw Exception('Failed to load certificates');
     }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:jobfinder/components/styles.dart';
-import 'package:jobfinder/models/User/Certificate/Certificate_Index.dart';
+import 'package:jobfinder/models/User/UserCertificate.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/User/UserCertificatesService.dart';
 import 'package:provider/provider.dart';
@@ -19,7 +19,7 @@ class _UserCertificatesState extends State<UserCertificates> {
   late int _userId;
   late UserCertificatesService _userCertificatesService;
 
-  late Future<List<CertificateIndex>> certificates;
+  late Future<List<UserCertificate>> certificates;
 
   @override
   void initState() {

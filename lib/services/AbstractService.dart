@@ -1,5 +1,7 @@
+import 'package:jobfinder/config.dart';
+
 abstract class AbstractService {
-  String apiUrl = "https://compassionate-mahavira.213-142-157-85.plesk.page/api/v1";
+  String apiUrl = Config.apiUrl;
   final headers = {
     'Content-Type': 'application/json',
   };
