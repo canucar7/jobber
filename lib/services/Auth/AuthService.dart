@@ -67,46 +67,15 @@ class AuthService{
     }
   }
 
-  logOut() async{
+  Future<bool> logout() async{
+    apiUrl = apiUrl + "/auth/logout";
 
-    try{
+    Response response = await post(Uri.parse(apiUrl));
 
-      Response response = await post(
-          Uri.parse("https://compassionate-mahavira.213-142-157-85.plesk.page/api/v1/auth/logout"),
-
-      );
-
-      if(response.statusCode == 200){
-        var data = jsonDecode(response.body.toString());
-        print(data);
-        print("account logout successfully");
-      }else{
-        print("failed");
-      }
-    }catch(e){
-      print(e.toString());
+    if(response.statusCode == 200){
+     return true;
+    }else{
+      return false;
     }
   }
-
-
-
-/*
-  signOut() async {
-    return await _auth.signOut();
-  }
-
-  Future<User?> createPerson(String username, String email, String password) async {
-    var user = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-
-    await _firesotre
-        .collection("Person")
-    .doc(user.user?.uid)
-    .set({
-      'userName' : username,
-      'email' : email
-    });
-
-    return user.user;
-  }
-  */
 }

@@ -1,11 +1,3 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
 import 'package:flutter/material.dart';
 import 'package:jobfinder/pages/applied_jobs.dart';
 import 'package:jobfinder/pages/bookmark.dart';
@@ -27,29 +19,27 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    AuthService _authService = AuthService(context.read<UserProvider>());
+    final provider = context.read<UserProvider>();
+    AuthService _authService = AuthService(provider);
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           UserAccountsDrawerHeader(
-            accountName: const Text(
-              'Admin',
+            accountName: Text(
+              provider.auth!.user.name,
               style: TextStyle(color: Colors.white),
             ),
-            accountEmail: const Text(
-              'admin@flutter_ninja.com',
+            accountEmail: Text(
+              provider.auth!.user.email,
               style: TextStyle(color: Colors.white),
             ),
-            currentAccountPicture: CircleAvatar(
-              child: ClipOval(
-                child: Image.asset(
-                  'assets/images/s3.jpg',
-                  fit: BoxFit.cover,
-                  width: 90,
-                  height: 90,
+            currentAccountPicture: const Text(
+                'Jobber',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 30,
                 ),
-              ),
             ),
           ),
           ListTile(
@@ -124,7 +114,7 @@ class NavBar extends StatelessWidget {
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),
             onTap: () {
-              _authService.logOut();
+              _authService.logout();
               Navigator.push(
                   context,
                   MaterialPageRoute(
