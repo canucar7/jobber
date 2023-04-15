@@ -91,11 +91,7 @@ class _UserCertificatesState extends State<UserCertificates> {
     return FutureBuilder<List<UserCertificate>>(
       future: certificates,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.hasData) {
+         if (snapshot.hasData) {
           final certificatess = snapshot.data!;
           return ListView.builder(
             itemCount: certificatess.length,
@@ -113,7 +109,7 @@ class _UserCertificatesState extends State<UserCertificates> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        _showDeleteConfirmationDialog(certificates, certificate);
+                        _showDeleteConfirmationDialog(certificate);
                       },
                       child: Icon(Icons.delete),
                     ),
@@ -212,7 +208,7 @@ class _UserCertificatesState extends State<UserCertificates> {
     );
   }
 
-  void _showDeleteConfirmationDialog(certificates, UserCertificate certificate) {
+  void _showDeleteConfirmationDialog(UserCertificate certificate) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

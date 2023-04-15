@@ -1,5 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:jobfinder/components/styles.dart';
+import 'package:jobfinder/enums.dart';
+import 'package:jobfinder/models/User/UserForeignLanguage.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/User/UserForeignLanguage.dart';
+import 'package:provider/provider.dart';
 
 class UserForeignLanguages extends StatefulWidget {
   const UserForeignLanguages({Key? key}) : super(key: key);
@@ -9,52 +16,28 @@ class UserForeignLanguages extends StatefulWidget {
 }
 
 class _UserForeignLanguagesState extends State<UserForeignLanguages> {
+  late String _authToken;
+  late int _userId;
+  late UserForeignLanguagesService _userForeignLanguagesService;
+
+  late Future<List<UserForeignLanguage>> foreignLanguages;
+
+  @override
+  void initState() {
+    super.initState();
+    _authToken = context.read<UserProvider>().auth!.accessToken;
+    _userId = context.read<UserProvider>().auth!.user.id;
+    _userForeignLanguagesService = UserForeignLanguagesService(_authToken, _userId);
+    foreignLanguages = _userForeignLanguagesService.index();
+  }
+
+  void _updateForeignLanguages() {
+    setState(() {
+      foreignLanguages = _userForeignLanguagesService.index();
+    });
+  }
+
   final TextEditingController textController = new TextEditingController();
-  List? _tempListOfCities;
-  final _scaffoldKey = GlobalKey<ScaffoldMessengerState>();
-
-  static List _listOfCities = [
-    "Tokyo",
-    "New York",
-    "London",
-    "Paris",
-    "Madrid",
-    "Dubai",
-    "Rome",
-    "Barcelona",
-    "Cologne",
-    "Monte Carlo",
-    "Puebla",
-    "Florence",
-  ];
-
-  final Map<int, String> _suggestions01 = {
-    1 : 'AZERBAIJANI',
-    2 : 'ARABIC',
-    3 : 'GERMAN',
-    4 : 'BULGARIAN',
-    5 : 'CHINESE',
-    6 : 'FRENCH',
-    7 : 'PERSIAN',
-    8 : 'ENGLISH',
-    9 : 'ITALIAN',
-    10 : 'SPANISH',
-    11 : 'JAPANESE',
-    12 : 'KOREAN',
-    13 : 'PORTUGUESE',
-    14 : 'RUSSIAN',
-    15 : 'TURKISH',
-    16 : 'GREEK',
-  };
-
-  int selectID = 1;
-  String dropdownValueDay = '2';
-  String dropdownValueMonth = 'July';
-  String dropdownValueYear = '1997';
-  String dropdownValueMilitary = 'Muaf';
-  String dropdownValueLicense = 'Yapıldı';
-  String dropdownValueCountry = 'India';
-  String dropdownValueZip = '85001';
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +54,7 @@ class _UserForeignLanguagesState extends State<UserForeignLanguages> {
         ),
         Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
             margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
             decoration: const BoxDecoration(
               color: Colors.white,
@@ -85,95 +68,19 @@ class _UserForeignLanguagesState extends State<UserForeignLanguages> {
             ),
             child: Column(
               children: [
-                textFieldNo('Home Address'),
-                SizedBox(height: 10,),
+                _listBuilder(),
                 Row(
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        child: Text('ADD'),
+                        child: Text('Add'),
                         onPressed: (){
-                          showModalBottomSheet(context: context, builder: (BuildContext context) {
-                            return Container(
-                                padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-                                height: MediaQuery.of(context).size.height * .60,
-                                child : Column(
-                                  children: [
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 20),
-                                        greyTextSmall('Language'),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                              child: ElevatedButton(
-                                                style: ElevatedButton.styleFrom(
-                                                    backgroundColor: Colors.transparent,
-                                                    foregroundColor: Colors.black,
-                                                    elevation: 0,
-                                                    side: BorderSide(
-                                                        width: 1.0,
-                                                        color: Colors.black.withOpacity(0.1)
-                                                    )
-
-                                                ),
-                                                child: Row(children :[Text('Select',style:TextStyle(fontSize: 13) ,),] ),
-                                                onPressed: (){
-                                                  _showModal(context);
-                                                },
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        const SizedBox(height: 20),
-                                        greyTextSmall('Level'),
-                                        Row(
-                                          children: [
-                                            Expanded(
-                                                child: DropdownButton<String>(
-                                                  value: dropdownValueLicense,
-                                                  icon: const Icon(Icons.arrow_drop_down),
-                                                  style: const TextStyle(color: Colors.black87),
-                                                  onChanged: (String? newValue) {
-                                                    setState(() {
-                                                      dropdownValueLicense = newValue!;
-                                                    });
-                                                  },
-                                                  items: <String>['Tecilli', 'Yapıldı', 'Muaf']
-                                                      .map<DropdownMenuItem<String>>((String value) {
-                                                    return DropdownMenuItem<String>(
-                                                      value: value,
-                                                      child: Text(value),
-                                                    );
-                                                  }).toList(),
-                                                )),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(height: 40,),
-                                    ElevatedButton(
-                                        onPressed: (){},
-                                        child: Text("SAVE")),
-                                  ],
-                                )
-                            );
-                          }
-                          );
+                          _showModal(false);
                         },
                       ),
                     ),
                   ],
                 ),
-
-
                 const SizedBox(height: 10),
               ],
             )),
@@ -181,110 +88,162 @@ class _UserForeignLanguagesState extends State<UserForeignLanguages> {
     );
   }
 
-  void _showModal(context) {
-    showModalBottomSheet(
-        isScrollControlled: true,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(15.0)),
-        ),
-        context: context,
-        builder: (context) {
-          //3
-          return StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-                return DraggableScrollableSheet(
-                    expand: false,
-                    builder:
-                        (BuildContext context, ScrollController scrollController) {
-                      return Column(children: [
-                        Padding(
-                            padding: EdgeInsets.all(8),
-                            child: Row(children: [
-                              Expanded(
-                                  child: TextField(
-                                      controller: textController,
-                                      decoration: InputDecoration(
-                                        contentPadding: EdgeInsets.all(8),
-                                        border: new OutlineInputBorder(
-                                          borderRadius:
-                                          new BorderRadius.circular(15.0),
-                                          borderSide: new BorderSide(),
-                                        ),
-                                        prefixIcon: Icon(Icons.search),
-                                      ),
-                                      onChanged: (value) {
-                                        //4
-                                        setState(() {
-                                          _tempListOfCities =
-                                              _buildSearchList(value);
-                                        });
-                                      })),
-                              IconButton(
-                                  icon: Icon(Icons.close),
-                                  color: Color(0xFF1F91E7),
-                                  onPressed: () {
-                                    setState(() {
-                                      textController.clear();
-                                      _tempListOfCities?.clear();
-                                    });
-                                  }),
-                            ])),
-                        Expanded(
-                          child: ListView.separated(
-                              controller: scrollController,
-                              //5
-                              itemCount: (_tempListOfCities != null &&
-                                  _tempListOfCities!.length > 0)
-                                  ? _tempListOfCities!.length
-                                  : _listOfCities.length,
-                              separatorBuilder: (context, int) {
-                                return Divider();
-                              },
-                              itemBuilder: (context, index) {
-                                return InkWell(
-
-                                  //6
-                                    child: (_tempListOfCities != null &&
-                                        _tempListOfCities!.length > 0)
-                                        ? _showBottomSheetWithSearch(
-                                        index, _tempListOfCities!)
-                                        : _showBottomSheetWithSearch(
-                                        index, _listOfCities),
-                                    onTap: () {
-                                      //7
-                                      _scaffoldKey.currentState!.showSnackBar(
-                                          SnackBar(
-                                              behavior: SnackBarBehavior.floating,
-                                              content: Text((_tempListOfCities !=
-                                                  null &&
-                                                  _tempListOfCities!.length > 0)
-                                                  ? _tempListOfCities![index]
-                                                  : _listOfCities[index])));
-
-                                      Navigator.of(context).pop();
-                                    });
-                              }),
-                        )
-                      ]);
-                    });
-              });
-        });
+  Widget _listBuilder() {
+    return FutureBuilder<List<UserForeignLanguage>>(
+      future: foreignLanguages,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final foreignLanguagess = snapshot.data!;
+          return ListView.builder(
+            itemCount: foreignLanguagess.length,
+            itemBuilder: (context, index) {
+              final foreignLanguage = foreignLanguagess[index];
+              return ListTile(
+                title: Text(foreignLanguage.languageName),
+                trailing: Wrap(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        _showModal(true, foreignLanguage);
+                      },
+                      child: Icon(Icons.edit_calendar_outlined),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        _showDeleteConfirmationDialog(foreignLanguage);
+                      },
+                      child: Icon(Icons.delete),
+                    ),
+                  ],
+                ),
+              );
+            },
+            shrinkWrap: true,
+          );
+        } else if (snapshot.hasError) {
+          return Center(child: Text('${snapshot.error}'));
+        } else {
+          return Center(child: CircularProgressIndicator());
+        }
+      },
+    );
   }
 
-  List _buildSearchList(String userSearchTerm) {
-    List _searchList = [];
+  void _showModal(bool isUpdate, [UserForeignLanguage? foreignLanguage]) {
+    String? _selectedLanguage = Enums.foreignLanguages.values.first;
+    String? _selectedLanguageLevel = Enums.foreignLanguageLevels.values.first;
 
-    for (int i = 0; i < _listOfCities.length; i++) {
-      String name = _listOfCities[i];
-      if (name.toLowerCase().contains(userSearchTerm.toLowerCase())) {
-        _searchList.add(_listOfCities[i]);
-      }
+    if (isUpdate) {
+      _selectedLanguage = Enums.foreignLanguages[foreignLanguage!.language];
+      _selectedLanguageLevel = Enums.foreignLanguageLevels[foreignLanguage!.level];
     }
-    return _searchList;
+
+    showModalBottomSheet(context: context, builder: (BuildContext context) {
+      return StatefulBuilder(builder: (context, setState) {
+        return Container(
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<int>(
+                value: _selectedLanguage != null ? Enums.foreignLanguages.entries.firstWhere((element) => element.value == _selectedLanguage).key : null,
+                decoration: InputDecoration(labelText: 'Select a language'),
+                onChanged: (int? newValue) {
+                  setState(() {
+                    _selectedLanguage = Enums.foreignLanguages[newValue!];
+                  });
+                },
+                items: Enums.foreignLanguages.entries.map((MapEntry<int, String> entry) {
+                  return DropdownMenuItem<int>(
+                    value: entry.key,
+                    child: Text(entry.value),
+                  );
+                }).toList(),
+              ),
+              DropdownButtonFormField<int>(
+                value: _selectedLanguageLevel != null ? Enums.foreignLanguageLevels.entries.firstWhere((element) => element.value == _selectedLanguageLevel).key : null,
+                decoration: InputDecoration(labelText: 'Select a language level'),
+                onChanged: (int? newValueLevel) {
+                  setState(() {
+                    _selectedLanguageLevel = Enums.foreignLanguageLevels[newValueLevel!];
+                  });
+                },
+                items: Enums.foreignLanguageLevels.entries.map((MapEntry<int, String> entry) {
+                  return DropdownMenuItem<int>(
+                    value: entry.key,
+                    child: Text(entry.value),
+                  );
+                }).toList(),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final language = Enums.foreignLanguages.entries.firstWhere((element) => element.value == _selectedLanguage).key;
+                  final languageLevel = Enums.foreignLanguageLevels.entries.firstWhere((element) => element.value == _selectedLanguageLevel).key;
+                  
+                  if (language > 0 && languageLevel >= 0) {
+                    final infoForeignLanguage = {
+                      "language": language.toString(),
+                      "level": languageLevel.toString(),
+                    };
+
+                    if (isUpdate) {
+                      _userForeignLanguagesService.update(foreignLanguage!.id, infoForeignLanguage).then((value) => {
+                        _updateForeignLanguages(),
+                        Navigator.pop(context),
+                      });
+                    } else {
+                      _userForeignLanguagesService.store(jsonEncode(infoForeignLanguage)).then((value) => {
+                        _updateForeignLanguages(),
+                        Navigator.pop(context),
+                      });
+                    }
+
+                  }
+                },
+                child: Text(isUpdate ? 'Update' : 'Save'),
+              ),
+              const SizedBox(height: 40,),
+            ],
+          ),
+        );
+
+      });
+    },
+    );
   }
 
-  Widget _showBottomSheetWithSearch(int index, List listOfCities) {
-    return Text(listOfCities[index],
-        style: TextStyle(color: Colors.black, fontSize: 16),textAlign: TextAlign.center);
+  void _showDeleteConfirmationDialog(UserForeignLanguage foreignLanguage) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete Foreign Language"),
+          content: const Text("Are you sure you want to delete this foreign language?"),
+          actions: <Widget>[
+            TextButton(
+              child: const Text("CANCEL"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text(
+                "DELETE",
+                style: TextStyle(color: Colors.red),
+              ),
+              onPressed: () {
+                _userForeignLanguagesService.destroy(foreignLanguage.id).then((value) => {
+                  _updateForeignLanguages(),
+                  Navigator.of(context).pop(),
+                });
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
