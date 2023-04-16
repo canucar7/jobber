@@ -13,10 +13,11 @@ class UserForeignLanguagesService extends AbstractService {
 
   Future<List<UserForeignLanguage>> index() async {
     final response = await http.get(Uri.parse(apiUrl),headers: headers);
+
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-
       List<UserForeignLanguage> foreignLanguages = [];
+
       for (var foreignLanguage in jsonData['data']) {
         foreignLanguages.add(UserForeignLanguage.fromJson(foreignLanguage));
       }
@@ -28,6 +29,7 @@ class UserForeignLanguagesService extends AbstractService {
   }
 
   Future<UserForeignLanguage> store(body) async {
+    headers['Content-Type'] = 'application/json';
     final response = await http.post(
         Uri.parse(apiUrl),
         headers: headers,
@@ -65,11 +67,9 @@ class UserForeignLanguagesService extends AbstractService {
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-      print(jsonData);
+
       return UserForeignLanguage.fromJson(jsonData['data']);
     } else {
-      print('anasının amı');
-      print(response.statusCode);
       throw Exception('Failed to update foreign languages');
     }
   }

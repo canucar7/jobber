@@ -180,13 +180,13 @@ class _UserForeignLanguagesState extends State<UserForeignLanguages> {
               ),
               ElevatedButton(
                 onPressed: () {
-                  final language = Enums.foreignLanguages.entries.firstWhere((element) => element.value == _selectedLanguage).key;
-                  final languageLevel = Enums.foreignLanguageLevels.entries.firstWhere((element) => element.value == _selectedLanguageLevel).key;
+                  var language = Enums.foreignLanguages.entries.firstWhere((element) => element.value == _selectedLanguage).key;
+                  var languageLevel = Enums.foreignLanguageLevels.entries.firstWhere((element) => element.value == _selectedLanguageLevel).key;
                   
                   if (language > 0 && languageLevel >= 0) {
-                    final infoForeignLanguage = {
+                    Map infoForeignLanguage = {
                       "language": language.toString(),
-                      "level": languageLevel.toString(),
+                      "level": languageLevel.toString()
                     };
 
                     if (isUpdate) {
