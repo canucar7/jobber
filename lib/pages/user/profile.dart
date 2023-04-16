@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jobfinder/components/user/profile/user_addresses.dart';
 import 'package:jobfinder/components/user/profile/user_certificates.dart';
 import 'package:jobfinder/components/user/profile/user_educations.dart';
 import 'package:jobfinder/components/user/profile/user_experiences.dart';
@@ -58,6 +59,7 @@ class _ProfileState extends State<Profile> {
             UserProfileHeader(),
             const SizedBox(height: 8),
             UserInformations(),
+            UserAddresses(),
             UserExperiences(),
             UserEducations(),
             UserSkills(),
