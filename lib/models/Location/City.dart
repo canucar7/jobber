@@ -13,13 +13,10 @@ class City {
     required this.name,
   });
 
-  factory City.fromJson(Map<String, dynamic> json) {
-    return City(
-      id: json['id'],
-      countryId: json['country_id'],
-      plateCode: json['plate_code'],
-      phoneCode: json['phone_code'],
-      name: json['name'],
-    );
-  }
+  City.fromJson(Map<String, dynamic> json) :
+      id = json['id'],
+      countryId = json['country_id'],
+      plateCode = json['plate_code'],
+      phoneCode = json['phone_code'],
+      name = json['name'];
 }
