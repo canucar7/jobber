@@ -7,14 +7,19 @@
   Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
 */
 import 'package:flutter/material.dart';
+import 'package:jobfinder/models/Advertisement/Advertisement.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/rating.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 
 class JobDetails extends StatefulWidget {
   static const String id = 'JobDetails';
+  final int advertisementId;
 
-  const JobDetails({Key? key}) : super(key: key);
+  const JobDetails({Key? key,required this.advertisementId}) : super(key: key);
 
   @override
   _JobDetailsState createState() => _JobDetailsState();
@@ -24,9 +29,26 @@ class _JobDetailsState extends State<JobDetails> {
   int selectID = 1;
   double rating = 3.5;
 
+  late String _authToken;
+  late int _userId;
+  late AdvertisementService _advertisementService;
+
+  late Advertisement? advertisement;
+
   @override
   void initState() {
     super.initState();
+    _authToken = context.read<UserProvider>().auth!.accessToken;
+    _userId = context.read<UserProvider>().auth!.user.id;
+    _advertisementService = AdvertisementService(_authToken, _userId);
+    getAdvertisementDetails();
+  }
+
+  void getAdvertisementDetails() async {
+    Advertisement fetchAdvertisement = await _advertisementService.show(widget.advertisementId);
+    setState(() {
+      advertisement = fetchAdvertisement;
+    });
   }
 
   @override
@@ -315,7 +337,7 @@ class _JobDetailsState extends State<JobDetails> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const JobDetails()));
+            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: 1,)));//TODO advertisement id verileecek
       },
       child: Container(
         padding: const EdgeInsets.all(16),

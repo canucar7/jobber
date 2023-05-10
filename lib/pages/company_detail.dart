@@ -1,22 +1,19 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
 import 'package:flutter/material.dart';
+import 'package:jobfinder/models/User/UserCompany.dart';
 import 'package:jobfinder/pages/view_jobs.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/User/UserCompanyService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/navbar.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class CompanyDetail extends StatefulWidget {
   static const String id = 'CompanyDetail';
+  final int companyId;
 
-  const CompanyDetail({Key? key}) : super(key: key);
+  const CompanyDetail({Key? key, required this.companyId}) : super(key: key);
 
   @override
   _CompanyDetailState createState() => _CompanyDetailState();
@@ -24,6 +21,32 @@ class CompanyDetail extends StatefulWidget {
 
 class _CompanyDetailState extends State<CompanyDetail> {
   final Set<Marker> _markers = {};
+
+  late String _authToken;
+  late int _userId;
+  late UserCompanyService _userCompanyService;
+
+  late UserCompany? company;
+
+  @override
+  void initState() {
+    super.initState();
+    _authToken = context.read<UserProvider>().auth!.accessToken;
+    _userId = context.read<UserProvider>().auth!.user.id;
+    _userCompanyService = UserCompanyService(_authToken, _userId);
+    getCompanyDetails();
+  }
+
+  void getCompanyDetails() async {
+    UserCompany fetchCompany = await _userCompanyService.show(widget.companyId);
+    setState(() {
+      company = fetchCompany;
+    });
+  }
+
+
+
+
 
   void _onMapCreated(GoogleMapController controller) async {
     // Map Style
@@ -52,21 +75,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
       _markers.add(
         Marker(
           markerId: MarkerId('Id-1'),
-          position: LatLng(39.80000268029149, 30.5071030302915),
-          icon: customMarker,
-        ),
-      );
-      _markers.add(
-        Marker(
-          markerId: MarkerId('Id-2'),
-          position: LatLng(39.7851773302915, 30.5171550302915),
-          icon: customMarker,
-        ),
-      );
-      _markers.add(
-        Marker(
-          markerId: MarkerId('Id-3'),
-          position: LatLng(39.778549,30.518051),
+          position: LatLng(company!.address.latitude!, company!.address.longitude!),
           icon: customMarker,
         ),
       );
@@ -80,16 +89,12 @@ class _CompanyDetailState extends State<CompanyDetail> {
     final ImageConfiguration config = ImageConfiguration(devicePixelRatio: 2.5);
     final BitmapDescriptor customMarker = await BitmapDescriptor.fromAssetImage(
     config,
-    'assets/images/map-pin.png',
+    'assets/images/map-pin-company.png',
     );
-    print(customMarker);
+
     return customMarker;
   }
 
-  @override
-  void initState() {
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -97,7 +102,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
         drawer: const NavBar(),
         appBar: AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text('Company Name'),
+          title:  Text(company!.name),
           centerTitle: true,
           titleSpacing: 0,
           actions: [
@@ -179,7 +184,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      blackHeadingSmall('flutter_ninja Technology'),
+                      blackHeadingSmall(company!.name),
                       greyTextSmall('Mumbai, India')
                     ],
                   ),
@@ -231,24 +236,19 @@ class _CompanyDetailState extends State<CompanyDetail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  blackHeadingSmall('Grow Next Level Business'.toUpperCase()),
                   const SizedBox(height: 8),
-                  greyText(
-                      'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which dont look \n \n Lorem slightly believable. If you ar ything embarra text on theefined chunks as necessary,')
+                  Container(
+                    width: 500,
+                    height: 100,
+                    child: Text(
+                      company!.description,
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ),
+
                 ],
               )),
-          const SizedBox(height: 8),
-          blackHeadingSmall('Intro video'.toUpperCase()),
-          Container(
-            height: 160,
-            margin: const EdgeInsets.symmetric(vertical: 10),
-            decoration: const BoxDecoration(
-              borderRadius: BorderRadius.all(Radius.circular(6)),
-              image: DecorationImage(
-                  image: AssetImage('assets/images/p2.jpg'), fit: BoxFit.cover),
-            ),
-          ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           blackHeadingSmall('Overview company'.toUpperCase()),
           Container(
               margin: const EdgeInsets.symmetric(vertical: 10),
@@ -264,73 +264,37 @@ class _CompanyDetailState extends State<CompanyDetail> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildOverviewList(Icons.category_outlined, 'Categories',
-                      'Design & Creative'),
+                  _buildOverviewList(Icons.location_on_outlined, 'Country',
+                      company!.address.countryId.toString()),
                   _buildOverviewList(Icons.location_on_outlined, 'Location',
-                      'Los Angeles California PO'),
+                      company!.address.neighborhoodName + " " + company!.address.remainingAddress+
+                          "\n"+company!.address.districtId.toString() + "/" + company!.address.cityId.toString() ),
                   _buildOverviewList(
-                      Icons.call_outlined, 'Phone Number', '987-654-3210'),
+                      Icons.call_outlined, 'Phone Number', company!.phoneNumber.toString()),
                   _buildOverviewList(Icons.mail_outline, 'Email Address',
-                      'admin@flutter_ninja.com'),
-                  _buildOverviewList(
-                      Icons.language, 'Website', 'www.flutter_ninja.com'),
+                      context.read<UserProvider>().auth!.user.email),
                 ],
               )),
           const SizedBox(height: 8),
           blackHeadingSmall('Destination Map'.toUpperCase()),
           Container(
-            height: 640,
+            height: 400,
             margin: const EdgeInsets.symmetric(vertical: 10),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(6)),
             ),
             child: GoogleMap(
               mapType: MapType.normal,
-              initialCameraPosition: const CameraPosition(
-                  target: LatLng(39.8003513, 30.5063187), zoom: 20),
+              initialCameraPosition:  CameraPosition(
+                  target: LatLng(company!.address.latitude!, company!.address.longitude!), zoom: 18),
               markers: _markers,
               onMapCreated: _onMapCreated,
               myLocationEnabled: true,
               compassEnabled: true,
               zoomControlsEnabled: true,
-              cameraTargetBounds: CameraTargetBounds(
-                LatLngBounds(
-                  southwest: LatLng(39.3503, 30.0024), // Güneybatı köşesi
-                  northeast: LatLng(39.8707, 31.5218), // Kuzeydoğu köşesi
-                ),
-              ),
             ),
           ),
-          const SizedBox(height: 8),
-          blackHeadingSmall('Social Profile'.toUpperCase()),
-          Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-              margin: const EdgeInsets.symmetric(vertical: 10),
-              decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 20.0,
-                    )
-                  ]),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Image.asset('assets/images/facebook.png',
-                      width: 40, height: 40, fit: BoxFit.cover),
-                  Image.asset('assets/images/linkedinicon.png',
-                      width: 40, height: 40, fit: BoxFit.cover),
-                  Image.asset('assets/images/twitter.png',
-                      width: 40, height: 40, fit: BoxFit.cover),
-                  Image.asset('assets/images/instagram.png',
-                      width: 40, height: 40, fit: BoxFit.cover),
-                  Image.asset('assets/images/youtube.png',
-                      width: 40, height: 40, fit: BoxFit.cover),
-                ],
-              )),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           blackHeadingSmall('Job Vacancies'.toUpperCase()),
           SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 8),
@@ -345,7 +309,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
               )),
         ],
       ),
-    );
+    ) ;
   }
 
   Widget _buildOverviewList(icon, title, txt) {

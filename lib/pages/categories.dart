@@ -82,7 +82,7 @@ class CategoriesState extends State<Categories> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CompanyDetail()));
+            MaterialPageRoute(builder: (context) => const CompanyDetail(companyId: 1)));
       },
       child: Container(
           decoration: const BoxDecoration(

@@ -71,7 +71,7 @@ class _ViewJobsState extends State<ViewJobs> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const JobDetails()));
+            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: 1,)));// TODO advertisement id verileecek
       },
       child: Container(
         padding: const EdgeInsets.all(16),

@@ -14,13 +14,11 @@ class DistrictService extends AbstractService {
       return [];
     }
     final response = await http.get(Uri.parse("$apiUrl?city_id=$cityId"),headers: headers);
-    print(response.body);
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
       List<District> districts = [];
       
       for (var district in jsonData['data']) {
-        print(district);
          districts.add(District.fromJson( district));
       }
       
