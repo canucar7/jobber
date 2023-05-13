@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jobfinder/pages/address_add.dart';
 import 'package:jobfinder/pages/applied_jobs.dart';
 import 'package:jobfinder/pages/bookmark.dart';
 import 'package:jobfinder/pages/categories.dart';
@@ -57,6 +58,14 @@ class NavBar extends StatelessWidget {
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const CreatePost()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Add Address'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const AddAddress()));
             },
           ),
           ListTile(
