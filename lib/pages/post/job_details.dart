@@ -6,14 +6,21 @@
   terms found in the Website https://codecanyon.net/licenses/standard/
   Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
 */
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jobfinder/enums.dart';
+import 'package:jobfinder/helpers/map_icon.dart';
 import 'package:jobfinder/models/Advertisement/Advertisement.dart';
+import 'package:jobfinder/models/User/UserAddress.dart';
+import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/rating.dart';
 import 'package:provider/provider.dart';
-import '../components/styles.dart';
+import '../../components/styles.dart';
 
 class JobDetails extends StatefulWidget {
   static const String id = 'JobDetails';
@@ -31,23 +38,99 @@ class _JobDetailsState extends State<JobDetails> {
 
   late String _authToken;
   late int _userId;
+  late UserAddress _userAddress;
   late AdvertisementService _advertisementService;
 
-  late Advertisement? advertisement;
+  late Advertisement? advertisement = null;
+
+  late BitmapDescriptorSingleton mapIcon;
+  final Set<Marker> _markers = {};
 
   @override
   void initState() {
     super.initState();
     _authToken = context.read<UserProvider>().auth!.accessToken;
     _userId = context.read<UserProvider>().auth!.user.id;
+    _userAddress = context.read<UserProvider>().address!;
     _advertisementService = AdvertisementService(_authToken, _userId);
     getAdvertisementDetails();
   }
 
   void getAdvertisementDetails() async {
+    mapIcon = BitmapDescriptorSingleton();
+    await mapIcon.initialize();
+
+    print(mapIcon.companyIcon);
+
     Advertisement fetchAdvertisement = await _advertisementService.show(widget.advertisementId);
     setState(() {
       advertisement = fetchAdvertisement;
+    });
+  }
+
+  void _onMapCreated(GoogleMapController controller) async {
+    // Map Style
+    String style = '''
+    [      {        "featureType": "poi",        "stylers": [          { "visibility": "off" }        ]
+      },
+      {
+        "featureType": "transit",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [
+          { "visibility": "on" }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "labels.icon",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "labels.text",
+        "stylers": [
+          { "visibility": "on" }
+        ]
+      }
+    ]
+  ''';
+
+    controller.setMapStyle(style);
+
+    setState(() {
+      _markers.add(
+        Marker(
+          markerId: MarkerId('Id-1'),
+          position: LatLng(advertisement!.address.latitude!, advertisement!.address.longitude!),
+          icon: mapIcon.companyIcon,
+          infoWindow: InfoWindow(
+            title: advertisement!.company != null ? advertisement!.company!.name : advertisement!.user.name,
+            snippet: advertisement!.address.neighborhoodName + (advertisement?.address.remainingAddress ?? ''),
+            onTap: () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => GeneralSettings()));
+            },
+          ),
+        ),
+      );
+      _markers.add(
+        Marker(
+          markerId: MarkerId('Id-2'),
+          position: LatLng(_userAddress.latitude!, _userAddress.longitude!),
+          icon: mapIcon.youIcon,
+            infoWindow: InfoWindow(
+              title: 'Your Location',
+              snippet: _userAddress.neighborhoodName + _userAddress.remainingAddress! ?? '',
+            )
+        ),
+      );
     });
   }
 
@@ -56,12 +139,9 @@ class _JobDetailsState extends State<JobDetails> {
     return Scaffold(
         appBar: AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text('Job Single Detail'),
+          title: const Text('Post Detail'),
           centerTitle: true,
           titleSpacing: 0,
-          actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.share)),
-          ],
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -76,29 +156,31 @@ class _JobDetailsState extends State<JobDetails> {
   }
 
   Widget _buildBody() {
-    return SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          children: [
-            _buildJobName(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _buildSelect('Description', 1),
-                _buildSelect('Company', 2),
-                _buildSelect('Reviews', 3),
-              ],
-            ),
-            Column(children: [
-              if (selectID == 1)
-                _buildDescription()
-              else if (selectID == 2)
-                _buildCompany()
-              else if (selectID == 3)
-                _buildReviews()
-            ]),
-          ],
-        ));
+    if (advertisement == null) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      return SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            children: [
+              _buildJobName(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildSelect('Description', 1),
+                  advertisement?.company != null ? _buildSelect('Company', 2) : Container(),
+                ],
+              ),
+              Column(children: [
+                if (selectID == 1)
+                  _buildDescription()
+                else if (selectID == 2)
+                  advertisement?.company != null ? _buildCompany() : Container()
+              ]),
+            ],
+          ));
+    }
+
   }
 
   Widget _buildJobName() {
@@ -117,22 +199,24 @@ class _JobDetailsState extends State<JobDetails> {
         ),
         child: Column(
           children: [
-            Image.asset('assets/images/n3.png', width: 40, height: 40),
+            Icon(
+              advertisement?.company != null ? Icons.business_center : Icons.work,
+              size: 50,
+              color: appColor,
+            ),
             const SizedBox(height: 8),
-            blackHeadingSmall('Flutter Developer'),
+            blackHeadingSmall(advertisement?.job != null ? advertisement?.job?.name : advertisement?.jobTitle),
             const SizedBox(height: 4),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                greyText('\$75,000 - \$90,000 a year'),
-                const SizedBox(width: 10),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(vertical: 3, horizontal: 8),
                   decoration: const BoxDecoration(
                       color: Colors.black12,
                       borderRadius: BorderRadius.all(Radius.circular(4))),
-                  child: greyTextSmall('Full Time'),
+                  child: greyTextSmall(Enums.employmentType[int.tryParse(advertisement?.employmentType ?? '1')]),
                 ),
               ],
             ),
@@ -142,18 +226,20 @@ class _JobDetailsState extends State<JobDetails> {
               children: [
                 Container(
                     padding: const EdgeInsets.only(right: 10),
-                    child: Image.asset('assets/images/n3.png',
-                        width: 30, height: 30)),
+                    child: Icon(
+                      advertisement?.company != null ? Icons.business_outlined : Icons.person,
+                      size: 40,
+                      color: appColor,
+                    )),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      blackHeadingSmall('flutter_ninja Technology'),
-                      greyTextSmall('Mumbai, India')
+                      blackHeadingSmall(advertisement?.company != null ? advertisement?.company?.name : advertisement?.user.name,),
                     ],
                   ),
                 ),
-                greyTextSmall('15 Days Left')
+                greyTextSmall(advertisement?.publishedDate ?? ''),
               ],
             ),
           ],
@@ -316,83 +402,35 @@ class _JobDetailsState extends State<JobDetails> {
             )),
         Container(
           padding: const EdgeInsets.only(top: 16, left: 16),
-          child: blackHeading('Releted Job'.toUpperCase()),
+          child: blackHeading('Address'.toUpperCase()),
         ),
-        SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(vertical: 8),
-            child: ListView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: 2,
-              physics: const ScrollPhysics(),
-              shrinkWrap: true,
-              itemBuilder: (context, i) => Column(
-                children: [_buildJobs()],
+        mapIcon == null ? const Center(child: CircularProgressIndicator())
+          : Container(
+              height: 300,
+              margin: const EdgeInsets.symmetric(vertical: 10),
+              decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(6)),
               ),
-            )),
+              child: GoogleMap(
+                mapType: MapType.normal,
+                initialCameraPosition:  CameraPosition(
+                target: LatLng(advertisement!.address.latitude!, advertisement!.address.longitude!), zoom: 18),
+                markers: _markers,
+                onMapCreated: _onMapCreated,
+                myLocationEnabled: true,
+                compassEnabled: true,
+                zoomControlsEnabled: true,
+                gestureRecognizers: Set()
+                  ..add(Factory<PanGestureRecognizer>(
+                          () => PanGestureRecognizer()))
+                  ..add(Factory<ScaleGestureRecognizer>(
+                          () => ScaleGestureRecognizer()))
+                  ..add(Factory<TapGestureRecognizer>(
+                          () => TapGestureRecognizer()))
+                  ..add(Factory<VerticalDragGestureRecognizer>(
+                          () => VerticalDragGestureRecognizer())),
+              ),),
       ],
-    );
-  }
-
-  Widget _buildJobs() {
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(context,
-            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: 1,)));//TODO advertisement id verileecek
-      },
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 20.0,
-            ),
-          ],
-          borderRadius: BorderRadius.all(Radius.circular(6.0)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Image.asset('assets/images/n3.png',
-                        width: 30, height: 30)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      blackHeadingSmall('Flutter Developer'),
-                      greyTextSmall('Gobook Tech. los Angeles, CA')
-                    ],
-                  ),
-                ),
-                const Icon(Icons.bookmark, color: appColor, size: 16),
-              ],
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: greyTextSmall(
-                  'It is a long established fact that a reader be distracted by content of page when looking at its layout..'),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                boldText('\$35,000-\$85,000 a year'),
-                MyElevatedButton(
-                    onPressed: () {},
-                    text: btnText('Apply'),
-                    height: 28,
-                    width: 80)
-              ],
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -439,168 +477,6 @@ class _JobDetailsState extends State<JobDetails> {
                   title: greyText(
                       'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco'),
                 ),
-              ],
-            )),
-      ],
-    );
-  }
-
-  Widget _buildReviews() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.only(top: 16, left: 16),
-          child: blackHeading('Review Summary'.toUpperCase()),
-        ),
-        Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
-            margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 20.0,
-                ),
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(6.0)),
-            ),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(children: const [
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18)
-                    ]),
-                    const SizedBox(width: 10),
-                    reviewText('(453 Reviews) 70%'),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(children: const [
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18)
-                    ]),
-                    const SizedBox(width: 10),
-                    reviewText('(201 Reviews) 20%'),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(children: const [
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18)
-                    ]),
-                    const SizedBox(width: 10),
-                    reviewText('(45 Reviews) 5%'),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(children: const [
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18)
-                    ]),
-                    const SizedBox(width: 10),
-                    reviewText('(20 Reviews) 3%'),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Row(children: const [
-                      Icon(Icons.star, color: Colors.orange, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18),
-                      Icon(Icons.star, color: Colors.grey, size: 18)
-                    ]),
-                    const SizedBox(width: 10),
-                    reviewText('(10 Reviews) 2%'),
-                  ],
-                ),
-              ],
-            )),
-        Container(
-          padding: const EdgeInsets.only(top: 16, left: 16),
-          child: blackHeading('Your Rating'.toUpperCase()),
-        ),
-        Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
-            margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 20.0,
-                ),
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(6.0)),
-            ),
-            child: Column(
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      StarRating(
-                        rating: rating,
-                        onRatingChanged: (rating) =>
-                            setState(() => this.rating = rating),
-                        color: Colors.orange,
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: const TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Enter here',
-                      labelStyle:
-                          TextStyle(color: Colors.black38, fontSize: 14),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: appColor),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: MyElevatedButton(
-                      onPressed: () {},
-                      text: Text(
-                        'Submit'.toUpperCase(),
-                        style: const TextStyle(
-                            color: Colors.white,
-                            fontFamily: 'medium',
-                            fontSize: 16),
-                      ),
-                      height: 45,
-                      width: double.infinity),
-                )
               ],
             )),
       ],

@@ -27,6 +27,26 @@ class JobService extends AbstractService {
     }
   }
 
+  Future<List<Map<String, dynamic>>>activeByAddress(int addressId) async {
+    final response = await http.get(Uri.parse(apiUrl+"/address/$addressId/active"),headers: headers);
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+
+      List<Map<String, dynamic>> jobs = [];
+      for (var job in jsonData) {
+        Map<String, dynamic> jobMap = {
+          'job': Job.fromJson(job['job'][0]),
+          'advertisement_count': job['advertisement_count']
+        };
+        jobs.add(jobMap);
+      }
+      return jobs;
+    } else {
+      throw Exception('Failed to load jobs');
+    }
+  }
+
 
 
 

@@ -401,7 +401,7 @@ class _CreatePostState extends State<CreatePost> {
                             items.add(
                               DropdownMenuItem(
                                 value: address.id,
-                                child: Text(address.neighborhoodName + ' ' + address.remainingAddress,overflow: TextOverflow.ellipsis,),
+                                child: Text(address.neighborhoodName + ' ' + address.remainingAddress!,overflow: TextOverflow.ellipsis,),
 
                               ),
                             );

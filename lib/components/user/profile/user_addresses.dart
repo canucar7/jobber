@@ -159,7 +159,7 @@ class _UserAddressesState extends State<UserAddresses> {
 
     if (isUpdate) {
       neighborhoodNameController.text = address!.neighborhoodName;
-      remainingAddressController.text = address.remainingAddress;
+      remainingAddressController.text = address.remainingAddress!;
       selectedCity = address.cityId;
       handleCityChange(selectedCity);
       selectedDistrict = address.districtId;

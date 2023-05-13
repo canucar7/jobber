@@ -1,16 +1,9 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
 import 'package:flutter/material.dart';
 import 'package:jobfinder/pages/categories.dart';
 import 'package:jobfinder/pages/company.dart';
 import 'package:jobfinder/pages/filter.dart';
-import 'package:jobfinder/pages/job_details.dart';
+import 'package:jobfinder/pages/post/job_details.dart';
+import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/pages/view_jobs.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/navbar.dart';
@@ -63,13 +56,19 @@ class _HomeState extends State<Home> {
         centerTitle: true,
         titleSpacing: 0,
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
+          // IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
           IconButton(
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => const Filter()));
               },
               icon: const Icon(Icons.filter_list)),
+          IconButton(
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => const GeneralSettings()));
+              },
+              icon: const Icon(Icons.location_city)),
         ],
         flexibleSpace: Container(
           decoration: const BoxDecoration(
@@ -270,7 +269,7 @@ class _HomeState extends State<Home> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: 1,)));// TODO advertisement id verileecek
+            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: 6,)));// TODO advertisement id verileecek
       },
       child: Container(
         padding: const EdgeInsets.all(16),

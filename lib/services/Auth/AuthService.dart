@@ -2,9 +2,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart';
 import 'package:jobfinder/config.dart';
+import 'package:jobfinder/helpers/map_icon.dart';
 
 import 'package:jobfinder/models/Auth/Login.dart';
+import 'package:jobfinder/models/User/UserAddress.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/User/UserAddressService.dart';
 
 class AuthService{
   final UserProvider _userProvider;
@@ -13,9 +16,8 @@ class AuthService{
   AuthService(this._userProvider);
 
   Future<bool> login(BuildContext context, String email, String password) async{
-    apiUrl = apiUrl + "/auth/login";
     Response response = await post(
-        Uri.parse(apiUrl),
+        Uri.parse(apiUrl + "/auth/login"),
         headers: {
           'Accept' : 'application/json' ,
         },
@@ -30,6 +32,15 @@ class AuthService{
     if(response.statusCode == 200){
       LoginModel user = LoginModel.fromJson(data);
       _userProvider.setAuth(user);
+      late List<UserAddress> addressList;
+      late UserAddressService _userAddressService;
+      await Future.delayed(Duration(milliseconds: 3000), () {
+        _userAddressService = UserAddressService(_userProvider.auth!.accessToken, _userProvider.auth!.user.id);
+        BitmapDescriptorSingleton mapIcon = BitmapDescriptorSingleton();
+        mapIcon.initialize();
+      });
+      addressList = await _userAddressService.index();
+      _userProvider.setAddress(addressList[0]);
 
       return true;
     }else{

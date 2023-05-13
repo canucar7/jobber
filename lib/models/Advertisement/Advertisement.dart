@@ -1,3 +1,6 @@
+import 'package:jobfinder/models/Advertisement/Job.dart';
+import 'package:jobfinder/models/User/UserAddress.dart';
+
 class Advertisement {
   int id;
   int userId;
@@ -10,10 +13,12 @@ class Advertisement {
   String? description;
   String period;
   DateTime createdAt;
-  DateTime updatedAt;
+  DateTime? updatedAt;
+  String? publishedDate;
   User user;
   Company? company;
-  Address address;
+  Job? job;
+  UserAddress address;
 
   Advertisement({
     required this.id,
@@ -27,28 +32,32 @@ class Advertisement {
     this.description,
     required this.period,
     required this.createdAt,
-    required this.updatedAt,
+    this.updatedAt,
+    this.publishedDate,
     required this.user,
     this.company,
+    this.job,
     required this.address,
   });
 
   Advertisement.fromJson(Map<String, dynamic> json) :
       id= json['id'],
       userId= json['user_id'],
-      companyId= json['company_id'] != null ? int.parse(json['company_id']) : null,
-      purpose= int.parse(json['purpose']),
+      companyId= json['company_id'] != null ? int.parse(json['company_id'].toString()) : null,
+      purpose= int.parse(json['purpose'].toString()),
       status= json['status'],
       jobId= json['job_id'] != null ? int.parse(json['job_id']) : null,
       jobTitle= json['job_title'] != null ? (json['job_title'].toString()) : null,
-      employmentType= json['employment_type'],
+      employmentType= json['employment_type'].toString(),
       description= json['description'] != null ? (json['description'].toString()) : null,
-      period= json['period'],
+      period= json['period'].toString(),
       createdAt= DateTime.parse(json['created_at']),
-      updatedAt= DateTime.parse(json['updated_at']),
+      updatedAt= json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      publishedDate = json['published_date'] != null ? json['published_date'].toString() : null,
       user= User.fromJson(json['user']),
       company= json['company'] != null ? Company.fromJson(json['company']):null,
-      address= Address.fromJson(json['address']);
+      job= json['job'] != null ? Job.fromJson(json['job']):null,
+      address= UserAddress.fromJson(json['address']);
 
 }
 
@@ -78,55 +87,6 @@ class User {
       updatedAt= DateTime.parse(json['updated_at']);
 
 }
-
-class Address {
-  int id;
-  String modelType;
-  int modelId;
-  int countryId;
-  int cityId;
-  int districtId;
-  String neighborhoodName;
-  String? remainingAddress;
-  String latitude;
-  String longitude;
-  DateTime? deletedAt;
-  DateTime createdAt;
-  DateTime updatedAt;
-
-  Address({
-    required this.id,
-    required this.modelType,
-    required this.modelId,
-    required this.countryId,
-    required this.cityId,
-    required this.districtId,
-    required this.neighborhoodName,
-    this.remainingAddress,
-    required this.latitude,
-    required this.longitude,
-    this.deletedAt,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  Address.fromJson(Map<String, dynamic> json) :
-      id= json['id'],
-      modelType= json['model_type'],
-      modelId= json['model_id'],
-      countryId= json['country_id'],
-      cityId= json['city_id'],
-      districtId= json['district_id'],
-      neighborhoodName= json['neighborhood_name'],
-      remainingAddress= json['remaining_address'],
-      latitude= json['latitude'],
-      longitude= json['longitude'],
-      deletedAt= json['deleted_at'] != null ? DateTime.parse(json['deleted_at']) : null,
-      createdAt= DateTime.parse(json['created_at']),
-      updatedAt= DateTime.parse(json['updated_at']);
-
-}
-
 class Company {
   int id;
   int userId;
@@ -138,7 +98,7 @@ class Company {
   DateTime? deletedAt;
   DateTime createdAt;
   DateTime updatedAt;
-  Address address;
+  UserAddress address;
 
   Company({
     required this.id,
@@ -165,6 +125,6 @@ class Company {
       deletedAt= json['deleted_at'] != null ? DateTime.parse(json['deleted_at']) : null,
       createdAt= DateTime.parse(json['created_at']),
       updatedAt= DateTime.parse(json['updated_at']),
-      address= Address.fromJson(json['address']);
+      address= UserAddress.fromJson(json['address']);
 
 }

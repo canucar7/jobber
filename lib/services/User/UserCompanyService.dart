@@ -29,6 +29,27 @@ class UserCompanyService extends AbstractService {
     }
   }
 
+  Future<List<Map<String, dynamic>>>activeByAddress(int addressId) async {
+    final response = await http.get(Uri.parse(super.apiUrl+"/companies/address/$addressId/active"),headers: headers);
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+
+      List<Map<String, dynamic>> companies = [];
+      for (var company in jsonData) {
+        Map<String, dynamic> companyMap = {
+          'job': UserCompany.fromJson(company['company']),
+          'advertisement_count': company['advertisement_count']
+        };
+        companies.add(companyMap);
+      }
+
+      return companies;
+    } else {
+      throw Exception('Failed to load companies');
+    }
+  }
+
   Future<UserCompany> store(body, image) async {
 
     final request = http.MultipartRequest('POST', Uri.parse(apiUrl));

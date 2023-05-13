@@ -4,6 +4,7 @@ import 'package:jobfinder/pages/applied_jobs.dart';
 import 'package:jobfinder/pages/bookmark.dart';
 import 'package:jobfinder/pages/categories.dart';
 import 'package:jobfinder/pages/company.dart';
+import 'package:jobfinder/pages/home.dart';
 import 'package:jobfinder/pages/inbox.dart';
 import 'package:jobfinder/pages/invite_friend.dart';
 import 'package:jobfinder/pages/auth/login.dart';
@@ -45,15 +46,31 @@ class NavBar extends StatelessWidget {
             ),
           ),
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('View Profile'),
+            leading: const Icon(Icons.home),
+            title: const Text('Home Page'),
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Profile()));
+                  MaterialPageRoute(builder: (context) => const Home()));
             },
           ),
           ListTile(
-            leading: const Icon(Icons.person),
+            leading: const Icon(Icons.category),
+            title: const Text('Categories'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Categories()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.computer),
+            title: const Text('Companies'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Company()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.create),
             title: const Text('Create Post'),
             onTap: () {
               Navigator.push(context,
@@ -69,11 +86,11 @@ class NavBar extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.category),
-            title: const Text('Categories'),
+            leading: const Icon(Icons.person),
+            title: const Text('View Profile'),
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Categories()));
+                  MaterialPageRoute(builder: (context) => const Profile()));
             },
           ),
           ListTile(
@@ -90,14 +107,6 @@ class NavBar extends StatelessWidget {
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const AppliedJobs()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.computer),
-            title: const Text('Companies'),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Company()));
             },
           ),
           ListTile(

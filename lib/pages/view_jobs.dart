@@ -7,7 +7,7 @@
   Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
 */
 import 'package:flutter/material.dart';
-import 'package:jobfinder/pages/job_details.dart';
+import 'package:jobfinder/pages/post/job_details.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/navbar.dart';
 import '../components/styles.dart';
