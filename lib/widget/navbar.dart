@@ -9,7 +9,7 @@ import 'package:jobfinder/pages/inbox.dart';
 import 'package:jobfinder/pages/invite_friend.dart';
 import 'package:jobfinder/pages/auth/login.dart';
 import 'package:jobfinder/pages/notification.dart';
-import 'package:jobfinder/pages/post/CreatePost.dart';
+import 'package:jobfinder/pages/post/create_post.dart';
 import 'package:jobfinder/pages/user/profile.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 
