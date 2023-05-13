@@ -26,7 +26,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
   late int _userId;
   late UserCompanyService _userCompanyService;
 
-  late UserCompany? company;
+  late UserCompany? company = null;
 
   @override
   void initState() {
@@ -98,27 +98,31 @@ class _CompanyDetailState extends State<CompanyDetail> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        drawer: const NavBar(),
-        appBar: AppBar(
-          iconTheme: const IconThemeData(color: Colors.white),
-          title:  Text(company!.name),
-          centerTitle: true,
-          titleSpacing: 0,
-          actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.share)),
-          ],
-          flexibleSpace: Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: <Color>[appColor2, appColor]),
+    if (company == null) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      return Scaffold(
+          drawer: const NavBar(),
+          appBar: AppBar(
+            iconTheme: const IconThemeData(color: Colors.white),
+            title:  Text(company!.name),
+            centerTitle: true,
+            titleSpacing: 0,
+            actions: [
+              IconButton(onPressed: () {}, icon: const Icon(Icons.share)),
+            ],
+            flexibleSpace: Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: <Color>[appColor2, appColor]),
+              ),
             ),
+            elevation: 0,
           ),
-          elevation: 0,
-        ),
-        body: _buildBody());
+          body: _buildBody());
+    }
   }
 
   Widget _buildBody() {

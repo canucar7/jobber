@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:jobfinder/components/user/profile/user_first_address.dart';
 import 'package:jobfinder/pages/auth/forgot_password.dart';
 import 'package:jobfinder/pages/home.dart';
 import 'package:jobfinder/pages/auth/register.dart';
@@ -182,8 +183,14 @@ class _LoginState extends State<Login> {
                     setState(() {
                       _isLoading = false;
                     });
+                    //print(context.read<UserProvider>().address!.id);
                     if (value) {
-                      return Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
+                      if(context.read<UserProvider>().address?.id != null){
+                        return Navigator.push(context, MaterialPageRoute(builder: (context) => const Home()));
+                      }else{
+                        return Navigator.push(context, MaterialPageRoute(builder: (context) => const UserFirstAddresses()));
+                      }
+
                     }
                   });
                 },

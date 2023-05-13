@@ -40,7 +40,9 @@ class AuthService{
         mapIcon.initialize();
       });
       addressList = await _userAddressService.index();
-      _userProvider.setAddress(addressList[0]);
+      if(addressList.length>0){
+        _userProvider.setAddress(addressList[0]);
+      }
 
       return true;
     }else{
