@@ -5,12 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jobfinder/helpers/map_icon.dart';
 import 'package:jobfinder/models/Advertisement/Advertisement.dart';
 import 'package:jobfinder/models/User/UserAddress.dart';
-import 'package:jobfinder/models/User/UserCompany.dart';
 import 'package:jobfinder/pages/categories.dart';
-import 'package:jobfinder/pages/company.dart';
-import 'package:jobfinder/pages/category_details.dart';
-import 'package:jobfinder/pages/company.dart';
-import 'package:jobfinder/pages/company_jobs_details.dart';
 import 'package:jobfinder/pages/filter.dart';
 import 'package:jobfinder/pages/post/job_details.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
@@ -24,28 +19,25 @@ import 'package:jobfinder/widget/navbar.dart';
 import 'package:provider/provider.dart';
 import '../components/styles.dart';
 
-class Home extends StatefulWidget {
-  static const String id = 'Home';
+class CompanyJobsDetails extends StatefulWidget {
+  static const String id = 'CompanyJobsDetails';
+  final int companyId;
 
-  const Home({Key? key}) : super(key: key);
+  const CompanyJobsDetails({Key? key, required this.companyId}) : super(key: key);
 
   @override
-  _HomeState createState() => _HomeState();
+  _CompanyJobsDetailsState createState() => _CompanyJobsDetailsState();
 }
 
-class _HomeState extends State<Home> {
+class _CompanyJobsDetailsState extends State<CompanyJobsDetails> {
   late String _authToken;
   late int _userId;
   late UserAddress _userAddress;
   late int _selectedUserAddress;
 
   late AdvertisementService _advertisementService;
-  late JobService _jobService;
-  late UserCompanyService _userCompanyService;
 
   List<Advertisement>? advertisements = null;
-  List<Map<String, dynamic>>? jobs = null;
-  List<Map<String, dynamic>>? companies = null;
 
   late BitmapDescriptorSingleton _mapAttributes;
   final Set<Marker> _markers = {};
@@ -58,32 +50,14 @@ class _HomeState extends State<Home> {
     _userAddress = context.read<UserProvider>().address!;
     _selectedUserAddress = context.read<UserProvider>().address!.id;
     _advertisementService = AdvertisementService(_authToken, _userId);
-    _jobService = JobService(_authToken);
-    _userCompanyService = UserCompanyService(_authToken, _userId);
     _loadAdvertisements();
     getMapAttributes();
-    _loadJobs();
-    _loadcompanies();
   }
 
   Future<void> _loadAdvertisements() async {
-    List<Advertisement> loadedAdvertisements = await _advertisementService.activeByAddress(_selectedUserAddress);
+    List<Advertisement> loadedAdvertisements = await _advertisementService.activeByAddressAndCompany(_selectedUserAddress, widget.companyId);
     setState(() {
       advertisements = loadedAdvertisements;
-    });
-  }
-
-  Future<void> _loadJobs() async {
-    List<Map<String, dynamic>> loadedJobs = await _jobService.activeByAddress(_selectedUserAddress);
-    setState(() {
-      jobs = loadedJobs;
-    });
-  }
-
-  Future<void> _loadcompanies() async {
-    List<Map<String, dynamic>> loadedCompanies = await _userCompanyService.activeByAddress(_selectedUserAddress);
-    setState(() {
-      companies = loadedCompanies;
     });
   }
 
@@ -136,7 +110,7 @@ class _HomeState extends State<Home> {
       drawer: const NavBar(),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
-        title: const Text('Home'),
+        title: const Text('Company Jobs Details'),
         centerTitle: true,
         titleSpacing: 0,
         actions: [
@@ -167,65 +141,6 @@ class _HomeState extends State<Home> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          jobs != null && (jobs?.isNotEmpty ?? false) ? Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                blackHeadingSmall('Jobs'.toUpperCase()),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Categories()));
-                    },
-                    child: appcolorText('See All'))
-              ],
-            ),
-          ) : Container(),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: jobs == null ? Center(child: CircularProgressIndicator()) :
-            Container(
-              padding: const EdgeInsets.only(left: 16),
-              child: Row(
-                children: jobs!.map((e) {
-                  return _buildCategory(context, e);
-                }).toList(),
-              ),
-            ),
-          ),
-          companies != null && (companies?.isNotEmpty ?? false) ? Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                blackHeadingSmall('Companies'.toUpperCase()),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const Companies()),
-                    );
-                  },
-                  child: appcolorText('See All'),
-                ),
-              ],
-            ),
-          ) : Container(),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: companies == null ? Center(child: CircularProgressIndicator()) :
-            Container(
-              padding: const EdgeInsets.only(left: 16),
-              child: Row(
-                children: companies!.map((e) {
-                  return _buildCompany(context, e);
-                }).toList(),
-              ),
-            ),
-          ),
           advertisements == null ? const Center(child: CircularProgressIndicator())
               : Container(
             height: 400,
@@ -286,86 +201,6 @@ class _HomeState extends State<Home> {
     );
   }
 
-  Widget _buildCategory(context, e) {
-    return  GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => CategoryDetails(jobId:  e['job'].id)));
-      },
-      child: Container(
-          margin: const EdgeInsets.only(top: 16, bottom: 16, right: 12),
-          width: 110,
-          height: 90,
-          clipBehavior: Clip.antiAlias,
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(2, 2),
-                  blurRadius: 8,
-                  color: Color.fromRGBO(0, 0, 0, 0.16),
-                )
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(6))),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.category,
-                size: 30,
-                color: appColor,
-              ),
-              const SizedBox(height: 4),
-              boldText(e['job'].name),
-              const SizedBox(height: 4),
-              greyTextSmall('('+ e['advertisement_count'].toString() +')')
-            ],
-          )),
-    );
-  }
-
-  Widget _buildCompany(context, e) {
-    return  GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => CompanyJobsDetails(companyId: e['company'].id)));
-      },
-      child: Container(
-          margin: const EdgeInsets.only(top: 16, bottom: 16, right: 12),
-          width: 110,
-          height: 90,
-          clipBehavior: Clip.antiAlias,
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(2, 2),
-                  blurRadius: 8,
-                  color: Color.fromRGBO(0, 0, 0, 0.16),
-                )
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(6))),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.maps_home_work_outlined,
-                size: 30,
-                color: appColor,
-              ),
-              const SizedBox(height: 4),
-              boldText(e['company'].name),
-              const SizedBox(height: 4),
-              greyTextSmall('('+ e['advertisement_count'].toString() +')')
-            ],
-          )),
-    );
-  }
-
   Widget _buildJobs(Advertisement advertisement) {
     return GestureDetector(
       onTap: () {
@@ -402,8 +237,8 @@ class _HomeState extends State<Home> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      blackHeadingSmall(advertisement.job != null ? advertisement.job?.name : advertisement.jobTitle.toString()),
-                      greyTextSmall(advertisement?.company != null ? advertisement?.company?.name : advertisement?.user.name,)
+                      blackHeadingSmall(advertisement.job != null ? advertisement.job?.name : advertisement.jobTitle),
+                      greyTextSmall(advertisement.company != null ? advertisement?.company?.name : advertisement?.user.name,)
                     ],
                   ),
                 ),

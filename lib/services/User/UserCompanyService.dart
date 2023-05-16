@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:http/http.dart' as http;
+import 'package:jobfinder/models/CompanyInformation.dart';
 import 'package:jobfinder/models/User/UserCompany.dart';
 import 'dart:convert';
 
@@ -34,11 +35,10 @@ class UserCompanyService extends AbstractService {
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
-
       List<Map<String, dynamic>> companies = [];
       for (var company in jsonData) {
         Map<String, dynamic> companyMap = {
-          'job': UserCompany.fromJson(company['company']),
+          'company': CompanyInformation.fromJson(company['company']),
           'advertisement_count': company['advertisement_count']
         };
         companies.add(companyMap);

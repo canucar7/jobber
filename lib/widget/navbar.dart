@@ -62,11 +62,11 @@ class NavBar extends StatelessWidget {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.computer),
+            leading: const Icon(Icons.maps_home_work_outlined),
             title: const Text('Companies'),
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Company()));
+                  MaterialPageRoute(builder: (context) => const Companies()));
             },
           ),
           ListTile(
