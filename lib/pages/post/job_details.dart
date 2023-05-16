@@ -9,8 +9,6 @@ import 'package:jobfinder/models/User/UserAddress.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
-import 'package:jobfinder/widget/elevated_button.dart';
-import 'package:jobfinder/widget/rating.dart';
 import 'package:provider/provider.dart';
 import '../../components/styles.dart';
 
@@ -35,7 +33,7 @@ class _JobDetailsState extends State<JobDetails> {
 
   late Advertisement? advertisement = null;
 
-  late BitmapDescriptorSingleton mapIcon;
+  late BitmapDescriptorSingleton _mapAttributes;
   final Set<Marker> _markers = {};
 
   @override
@@ -46,63 +44,30 @@ class _JobDetailsState extends State<JobDetails> {
     _userAddress = context.read<UserProvider>().address!;
     _advertisementService = AdvertisementService(_authToken, _userId);
     getAdvertisementDetails();
+    getMapAttributes();
   }
 
   void getAdvertisementDetails() async {
-    mapIcon = BitmapDescriptorSingleton();
-    await mapIcon.initialize();
-
-    print(mapIcon.companyIcon);
-
     Advertisement fetchAdvertisement = await _advertisementService.show(widget.advertisementId);
     setState(() {
       advertisement = fetchAdvertisement;
     });
   }
 
-  void _onMapCreated(GoogleMapController controller) async {
-    // Map Style
-    String style = '''
-    [      {        "featureType": "poi",        "stylers": [          { "visibility": "off" }        ]
-      },
-      {
-        "featureType": "transit",
-        "stylers": [
-          { "visibility": "off" }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "geometry",
-        "stylers": [
-          { "visibility": "on" }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "labels.icon",
-        "stylers": [
-          { "visibility": "off" }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "labels.text",
-        "stylers": [
-          { "visibility": "on" }
-        ]
-      }
-    ]
-  ''';
+  void getMapAttributes() async {
+    _mapAttributes = BitmapDescriptorSingleton();
+    await _mapAttributes.initialize();
+  }
 
-    controller.setMapStyle(style);
+  void _onMapCreated(GoogleMapController controller) async {
+    controller.setMapStyle(_mapAttributes.mapStyle);
 
     setState(() {
       _markers.add(
         Marker(
           markerId: MarkerId('Id-1'),
           position: LatLng(advertisement!.address.latitude!, advertisement!.address.longitude!),
-          icon: mapIcon.companyIcon,
+          icon: _mapAttributes.companyIcon,
           infoWindow: InfoWindow(
             title: advertisement!.company != null ? advertisement!.company!.name : advertisement!.user.name,
             snippet: advertisement!.address.neighborhoodName + (advertisement?.address.remainingAddress ?? ''),
@@ -116,7 +81,7 @@ class _JobDetailsState extends State<JobDetails> {
         Marker(
           markerId: MarkerId('Id-2'),
           position: LatLng(_userAddress.latitude!, _userAddress.longitude!),
-          icon: mapIcon.youIcon,
+          icon: _mapAttributes.youIcon,
             infoWindow: InfoWindow(
               title: 'Your Location',
               snippet: _userAddress.neighborhoodName + _userAddress.remainingAddress! ?? '',
@@ -192,7 +157,7 @@ class _JobDetailsState extends State<JobDetails> {
         child: Column(
           children: [
             Icon(
-              advertisement?.company != null ? Icons.business_center : Icons.work,
+              advertisement?.company != null ? Icons.maps_home_work_outlined : Icons.person,
               size: 50,
               color: appColor,
             ),
@@ -396,7 +361,7 @@ class _JobDetailsState extends State<JobDetails> {
           padding: const EdgeInsets.only(top: 16, left: 16),
           child: blackHeading('Address'.toUpperCase()),
         ),
-        mapIcon == null ? const Center(child: CircularProgressIndicator())
+        _mapAttributes == null ? const Center(child: CircularProgressIndicator())
           : Container(
               height: 300,
               margin: const EdgeInsets.symmetric(vertical: 10),

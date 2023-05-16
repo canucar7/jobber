@@ -1,4 +1,7 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:jobfinder/helpers/map_icon.dart';
 import 'package:jobfinder/models/User/UserCompany.dart';
 import 'package:jobfinder/pages/view_jobs.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
@@ -20,13 +23,14 @@ class CompanyDetail extends StatefulWidget {
 }
 
 class _CompanyDetailState extends State<CompanyDetail> {
-  final Set<Marker> _markers = {};
-
   late String _authToken;
   late int _userId;
   late UserCompanyService _userCompanyService;
 
   late UserCompany? company = null;
+
+  late BitmapDescriptorSingleton _mapAttributes;
+  final Set<Marker> _markers = {};
 
   @override
   void initState() {
@@ -35,6 +39,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
     _userId = context.read<UserProvider>().auth!.user.id;
     _userCompanyService = UserCompanyService(_authToken, _userId);
     getCompanyDetails();
+    getMapAttributes();
   }
 
   void getCompanyDetails() async {
@@ -43,46 +48,23 @@ class _CompanyDetailState extends State<CompanyDetail> {
       company = fetchCompany;
     });
   }
-
-
-
-
-
+  
+  void getMapAttributes() async {
+    _mapAttributes = BitmapDescriptorSingleton();
+    await _mapAttributes.initialize();
+  }
+  
   void _onMapCreated(GoogleMapController controller) async {
-    // Map Style
-    String style = '''
-    [
-      {
-        "featureType": "all",
-        "elementType": "all",
-        "stylers": [
-          { "visibility": "off" }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "labels.text",
-        "stylers": [
-          { "visibility": "on" }
-        ]
-      }
-    ]
-  ''';
-
-    BitmapDescriptor customMarker = await getCustomMarker();
-
+    controller.setMapStyle(_mapAttributes.mapStyle);
     setState(() {
       _markers.add(
         Marker(
           markerId: MarkerId('Id-1'),
           position: LatLng(company!.address.latitude!, company!.address.longitude!),
-          icon: customMarker,
+          icon: _mapAttributes.companyIcon
         ),
       );
     });
-
-    //controller.setMapStyle(style);
-
   }
 
   Future<BitmapDescriptor> getCustomMarker() async {
@@ -95,17 +77,13 @@ class _CompanyDetailState extends State<CompanyDetail> {
     return customMarker;
   }
 
-
   @override
   Widget build(BuildContext context) {
-    if (company == null) {
-      return const Center(child: CircularProgressIndicator());
-    } else {
       return Scaffold(
           drawer: const NavBar(),
           appBar: AppBar(
             iconTheme: const IconThemeData(color: Colors.white),
-            title:  Text(company!.name),
+            title:  Text(company == null ? '' : company!.name),
             centerTitle: true,
             titleSpacing: 0,
             actions: [
@@ -121,8 +99,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
             ),
             elevation: 0,
           ),
-          body: _buildBody());
-    }
+          body: company == null ? const Center(child: CircularProgressIndicator()) : _buildBody());
   }
 
   Widget _buildBody() {
@@ -281,8 +258,9 @@ class _CompanyDetailState extends State<CompanyDetail> {
               )),
           const SizedBox(height: 8),
           blackHeadingSmall('Destination Map'.toUpperCase()),
-          Container(
-            height: 400,
+          _mapAttributes == null ? const Center(child: CircularProgressIndicator())
+              : Container(
+            height: 300,
             margin: const EdgeInsets.symmetric(vertical: 10),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(6)),
@@ -296,8 +274,16 @@ class _CompanyDetailState extends State<CompanyDetail> {
               myLocationEnabled: true,
               compassEnabled: true,
               zoomControlsEnabled: true,
-            ),
-          ),
+              gestureRecognizers: Set()
+                ..add(Factory<PanGestureRecognizer>(
+                        () => PanGestureRecognizer()))
+                ..add(Factory<ScaleGestureRecognizer>(
+                        () => ScaleGestureRecognizer()))
+                ..add(Factory<TapGestureRecognizer>(
+                        () => TapGestureRecognizer()))
+                ..add(Factory<VerticalDragGestureRecognizer>(
+                        () => VerticalDragGestureRecognizer())),
+            ),),
           const SizedBox(height: 16),
           blackHeadingSmall('Job Vacancies'.toUpperCase()),
           SingleChildScrollView(

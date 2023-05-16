@@ -1,12 +1,24 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:jobfinder/helpers/map_icon.dart';
+import 'package:jobfinder/models/Advertisement/Advertisement.dart';
+import 'package:jobfinder/models/User/UserAddress.dart';
+import 'package:jobfinder/models/User/UserCompany.dart';
 import 'package:jobfinder/pages/categories.dart';
 import 'package:jobfinder/pages/company.dart';
 import 'package:jobfinder/pages/filter.dart';
 import 'package:jobfinder/pages/post/job_details.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/pages/view_jobs.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
+import 'package:jobfinder/services/Advertisement/JobService.dart';
+import 'package:jobfinder/services/User/UserCompanyService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/navbar.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 
 class Home extends StatefulWidget {
@@ -40,9 +52,100 @@ class _HomeState extends State<Home> {
     const Item('assets/images/n1.png', 'ACC IT'),
     const Item('assets/images/n4.png', 'PVT. LTD.'),
   ];
+
+  late String _authToken;
+  late int _userId;
+  late UserAddress _userAddress;
+  late int _selectedUserAddress;
+
+  late AdvertisementService _advertisementService;
+  late JobService _jobService;
+  late UserCompanyService _userCompanyService;
+
+  List<Advertisement>? advertisements = null;
+  List<Map<String, dynamic>>? jobs = null;
+  List<Map<String, dynamic>>? companies = null;
+
+  late BitmapDescriptorSingleton _mapAttributes;
+  final Set<Marker> _markers = {};
+
   @override
   void initState() {
     super.initState();
+    _authToken = context.read<UserProvider>().auth!.accessToken;
+    _userId = context.read<UserProvider>().auth!.user.id;
+    _userAddress = context.read<UserProvider>().address!;
+    _selectedUserAddress = context.read<UserProvider>().address!.id;
+    _advertisementService = AdvertisementService(_authToken, _userId);
+    _jobService = JobService(_authToken);
+    _userCompanyService = UserCompanyService(_authToken, _userId);
+    _loadAdvertisements();
+    getMapAttributes();
+    _loadJobs();
+    _loadcompanies();
+  }
+
+  Future<void> _loadAdvertisements() async {
+    List<Advertisement> loadedAdvertisements = await _advertisementService.activeByAddress(_selectedUserAddress);
+    setState(() {
+      advertisements = loadedAdvertisements;
+    });
+  }
+
+  Future<void> _loadJobs() async {
+    List<Map<String, dynamic>> loadedJobs = await _jobService.activeByAddress(_selectedUserAddress);
+    setState(() {
+      jobs = loadedJobs;
+    });
+  }
+
+  Future<void> _loadcompanies() async {
+    List<Map<String, dynamic>> loadedCompanies = await _userCompanyService.activeByAddress(_selectedUserAddress);
+    setState(() {
+      companies = loadedCompanies;
+    });
+  }
+
+  void getMapAttributes() async {
+    _mapAttributes = BitmapDescriptorSingleton();
+    await _mapAttributes.initialize();
+  }
+
+  void _onMapCreated(GoogleMapController controller) async {
+    controller.setMapStyle(_mapAttributes.mapStyle);
+
+    for (var advertisement in advertisements!) {
+      setState(() {
+        _markers.add(
+          Marker(
+            markerId: MarkerId(advertisement.id.toString()),
+            position: LatLng(advertisement.address.latitude!, advertisement.address.longitude!),
+            icon: advertisement.company != null ? _mapAttributes.companyIcon : _mapAttributes.userIcon,
+            infoWindow: InfoWindow(
+              title: advertisement.job != null ? advertisement.job?.name : advertisement.jobTitle,
+              snippet: advertisement.company != null ? advertisement.company!.name : advertisement.user.name,
+              onTap: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => JobDetails(advertisementId: advertisement.id,)));
+              },
+            ),
+          ),
+        );
+      });
+    }
+
+    setState(() {
+      _markers.add(
+        Marker(
+            markerId: MarkerId('Id-user'),
+            position: LatLng(_userAddress.latitude!, _userAddress.longitude!),
+            icon: _mapAttributes.youIcon,
+            infoWindow: InfoWindow(
+              title: 'Your Location',
+              snippet: _userAddress.neighborhoodName + _userAddress.remainingAddress! ?? '',
+            )
+        ),
+      );
+    });
   }
 
   @override
@@ -80,7 +183,7 @@ class _HomeState extends State<Home> {
         ),
         elevation: 0,
       ),
-      body: _buildBody(),
+      body: _mapAttributes == null ? Center(child: CircularProgressIndicator()) : _buildBody(),
     );
   }
 
@@ -90,35 +193,7 @@ class _HomeState extends State<Home> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                blackHeadingSmall('All Category'.toUpperCase()),
-                GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Categories()));
-                    },
-                    child: appcolorText('See All'))
-              ],
-            ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Container(
-              padding: const EdgeInsets.only(left: 16),
-              child: Row(
-                children: cateList.map((e) {
-                  return _buildCategory(context, e);
-                }).toList(),
-              ),
-            ),
-          ),
-          Container(
+          jobs != null && (jobs?.isNotEmpty ?? false) ? Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -129,57 +204,86 @@ class _HomeState extends State<Home> {
                       Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => const ViewJobs()));
+                              builder: (context) => const Categories()));
                     },
                     child: appcolorText('See All'))
               ],
             ),
-          ),
+          ) : Container(),
           SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: 2,
-                physics: const ScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, i) => Column(
-                  children: [_buildJobs()],
-                ),
-              )),
-          Container(
+            scrollDirection: Axis.horizontal,
+            child: jobs == null ? Center(child: CircularProgressIndicator()) :
+            Container(
+              padding: const EdgeInsets.only(left: 16),
+              child: Row(
+                children: jobs!.map((e) {
+                  return _buildCategory(context, e);
+                }).toList(),
+              ),
+            ),
+          ),
+          companies != null && (companies?.isNotEmpty ?? false) ? Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 blackHeadingSmall('Companies'.toUpperCase()),
                 GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const Company()));
-                    },
-                    child: appcolorText('See All'))
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Home()),
+                    );
+                  },
+                  child: appcolorText('See All'),
+                ),
               ],
             ),
-          ),
+          ) : Container(),
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            child: Container(
+            child: companies == null ? Center(child: CircularProgressIndicator()) :
+            Container(
               padding: const EdgeInsets.only(left: 16),
               child: Row(
-                children: companyList.map((e) {
+                children: companies!.map((e) {
                   return _buildCategory(context, e);
                 }).toList(),
               ),
             ),
           ),
+          advertisements == null ? const Center(child: CircularProgressIndicator())
+              : Container(
+            height: 300,
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(6)),
+            ),
+            child: GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition:  CameraPosition(
+                  target: LatLng(_userAddress.latitude!, _userAddress.longitude!), zoom: 18),
+              markers: _markers,
+              onMapCreated: _onMapCreated,
+              myLocationEnabled: true,
+              compassEnabled: true,
+              zoomControlsEnabled: true,
+              gestureRecognizers: Set()
+                ..add(Factory<PanGestureRecognizer>(
+                        () => PanGestureRecognizer()))
+                ..add(Factory<ScaleGestureRecognizer>(
+                        () => ScaleGestureRecognizer()))
+                ..add(Factory<TapGestureRecognizer>(
+                        () => TapGestureRecognizer()))
+                ..add(Factory<VerticalDragGestureRecognizer>(
+                        () => VerticalDragGestureRecognizer())),
+            ),),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                blackHeadingSmall('Featured jobs'.toUpperCase()),
+                blackHeadingSmall('Posts'.toUpperCase()),
                 GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -187,49 +291,29 @@ class _HomeState extends State<Home> {
                           MaterialPageRoute(
                               builder: (context) => const ViewJobs()));
                     },
-                    child: appcolorText('See All'))
+                    child: appcolorText(''))
               ],
             ),
           ),
-          SingleChildScrollView(
+          advertisements == null ?  const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: ListView.builder(
                 padding: EdgeInsets.zero,
-                itemCount: 2,
+                itemCount: advertisements?.length,
                 physics: const ScrollPhysics(),
                 shrinkWrap: true,
                 itemBuilder: (context, i) => Column(
-                  children: [_buildJobs()],
+                  children: [_buildJobs(advertisements![i])],
                 ),
               )),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                blackHeadingSmall('Our Testimonial'.toUpperCase()),
-                appcolorText('See All')
-              ],
-            ),
-          ),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Container(
-              padding: const EdgeInsets.only(left: 16),
-              child: Row(
-                children: cateList.map((e) {
-                  return _buildTestimonial(context, e);
-                }).toList(),
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 
   Widget _buildCategory(context, e) {
-    return GestureDetector(
+    return  GestureDetector(
       onTap: () {},
       child: Container(
           margin: const EdgeInsets.only(top: 16, bottom: 16, right: 12),
@@ -249,27 +333,25 @@ class _HomeState extends State<Home> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                e.img,
-                width: 30,
-                height: 30,
+              const Icon(
+                Icons.location_city,
+                size: 30,
                 color: appColor,
-                fit: BoxFit.cover,
               ),
               const SizedBox(height: 4),
-              boldText(e.name),
+              boldText(e['job'].name),
               const SizedBox(height: 4),
-              greyTextSmall('(450 jobs)')
+              greyTextSmall('('+ e['advertisement_count'].toString() +')')
             ],
           )),
     );
   }
 
-  Widget _buildJobs() {
+  Widget _buildJobs(Advertisement advertisement) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: 6,)));// TODO advertisement id verileecek
+            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: advertisement.id,)));
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -292,14 +374,17 @@ class _HomeState extends State<Home> {
               children: [
                 Container(
                     padding: const EdgeInsets.only(right: 10),
-                    child: Image.asset('assets/images/n3.png',
-                        width: 30, height: 30)),
+                    child: Icon(
+                      advertisement.company != null ? Icons.maps_home_work_outlined  : Icons.person,
+                      size: 30,
+                      color: appColor,
+                    ),),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      blackHeadingSmall('Flutter Developer'),
-                      greyTextSmall('Gobook Tech. los Angeles, CA')
+                      blackHeadingSmall(advertisement.job != null ? advertisement.job?.name : advertisement.jobTitle),
+                      greyTextSmall(advertisement?.company != null ? advertisement?.company?.name : advertisement?.user.name,)
                     ],
                   ),
                 ),
@@ -309,84 +394,25 @@ class _HomeState extends State<Home> {
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
               child: greyTextSmall(
-                  'It is a long established fact that a reader be distracted by content of page when looking at its layout..'),
+                  advertisement.address.neighborhoodName + ' ' + (advertisement.address.remainingAddress ?? '')),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                boldText('\$35,000-\$85,000 a year'),
+                boldText(''),
                 MyElevatedButton(
-                    onPressed: () {},
-                    text: btnText('Apply'),
+                    onPressed: ()  {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: advertisement.id,)));
+                    },
+                    text: btnText('See Details'),
                     height: 28,
-                    width: 80)
+                    width: 100)
               ],
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Widget _buildTestimonial(context, e) {
-    return GestureDetector(
-      onTap: () {},
-      child: Container(
-          margin: const EdgeInsets.only(top: 16, bottom: 16, right: 12),
-          padding: const EdgeInsets.all(10),
-          width: 220,
-          height: 160,
-          clipBehavior: Clip.antiAlias,
-          decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(2, 2),
-                  blurRadius: 8,
-                  color: Color.fromRGBO(0, 0, 0, 0.16),
-                )
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(6))),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                      padding: const EdgeInsets.only(right: 10),
-                      child: Image.asset('assets/images/p1.jpg',
-                          fit: BoxFit.cover, width: 40, height: 40)),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        blackHeadingSmall('Willie Loren'),
-                        greyTextSmall('Support Manager @golang')
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const Divider(thickness: 1, color: backgroundColor),
-              Row(
-                children: [
-                  Row(children: const [
-                    Icon(Icons.star, color: Colors.orange, size: 14),
-                    Icon(Icons.star, color: Colors.orange, size: 14),
-                    Icon(Icons.star, color: Colors.orange, size: 14),
-                    Icon(Icons.star, color: Colors.orange, size: 14),
-                    Icon(Icons.star, color: Colors.grey, size: 14)
-                  ]),
-                  const SizedBox(width: 8),
-                  greyTextSmall('4.6 (453 Reviews)'),
-                ],
-              ),
-              const SizedBox(height: 8),
-              greyTextSmall(
-                  'There are many variation of vailable but the majority have suffered alteraction in some fomr, by injected humors or randomize.')
-            ],
-          )),
     );
   }
 }
