@@ -63,13 +63,11 @@ class AdvertisementService extends AbstractService {
   }
 
   Future<Advertisement> store(body) async {
-    print(body);
     final response = await http.post(
         Uri.parse(apiUrl),
         headers: headers,
         body: body);
 
-    print(response.body);
     if (response.statusCode == 201) {
       final jsonData = json.decode(response.body);
 
