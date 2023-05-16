@@ -22,13 +22,9 @@ class CreatePost extends StatefulWidget {
 
 enum SingingCharacter { var1 , var2, var3, var4 }
 
-
-
 class _CreatePostState extends State<CreatePost> {
-
   SingingCharacter? _character = SingingCharacter.var1;
   SingingCharacter? _character2 = SingingCharacter.var3;
-
 
   String? _selectedEmploymentType = Enums.employmentType.values.first;
   String? _selectedPeriod = Enums.period.values.first;
@@ -56,18 +52,12 @@ class _CreatePostState extends State<CreatePost> {
     _jobService = JobService(_authToken);
   }
 
-
-
   final titleController = TextEditingController();
   final descriptionNameController = TextEditingController();
 
   int? selectedAddress;
   int? selectedCompany;
   int? selectedJob;
-
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +85,6 @@ class _CreatePostState extends State<CreatePost> {
       body: _buildBody(),
     );
   }
-
 
   Widget _buildBody() {
     return Container(
@@ -476,7 +465,7 @@ class _CreatePostState extends State<CreatePost> {
                     data['job_title'] = titleController.text.toString();
                   }
                   else {
-                    data['job_it'] = selectedJob.toString();
+                    data['job_id'] = selectedJob.toString();
                   }
 
                   if(_character2 == SingingCharacter.var3){
