@@ -1,7 +1,4 @@
-import 'package:jobfinder/models/User/UserAddress.dart';
-
-class UserCompany {
-  UserAddress address;
+class CompanyInformation {
   int id;
   int userId;
   String name;
@@ -13,8 +10,7 @@ class UserCompany {
   String createdAt;
   String updatedAt;
 
-  UserCompany({
-    required this.address,
+  CompanyInformation({
     required this.id,
     required this.userId,
     required this.name,
@@ -27,8 +23,7 @@ class UserCompany {
     required this.updatedAt,
   });
 
-  UserCompany.fromJson(Map<String, dynamic> json) :
-      address= UserAddress.fromJson(json['address']),
+  CompanyInformation.fromJson(Map<String, dynamic> json) :
       id= json['id'],
       userId= json['user_id'],
       name= json['name'],

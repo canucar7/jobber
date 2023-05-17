@@ -180,7 +180,7 @@ class _UserCompaniesState extends State<UserCompanies> {
       handleCityChange(selectedCity);
       selectedDistrict = company.address.districtId;
       neighborhoodNameController.text = company.address.neighborhoodName;
-      remainingAddressController.text = company.address.remainingAddress;
+      remainingAddressController.text = (company.address.remainingAddress ?? '');
     }
 
     showModalBottomSheet(isScrollControlled: true,context: context, builder: (BuildContext context) {

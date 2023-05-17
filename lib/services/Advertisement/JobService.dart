@@ -46,11 +46,4 @@ class JobService extends AbstractService {
       throw Exception('Failed to load jobs');
     }
   }
-
-
-
-
-
-
-
 }

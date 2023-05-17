@@ -1,13 +1,6 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
 import 'package:flutter/material.dart';
 import 'package:jobfinder/pages/company_detail.dart';
+import 'package:jobfinder/pages/company_jobs_details.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/User/UserCompanyService.dart';
@@ -15,16 +8,16 @@ import 'package:jobfinder/widget/navbar.dart';
 import 'package:provider/provider.dart';
 import '../components/styles.dart';
 
-class Company extends StatefulWidget {
+class Companies extends StatefulWidget {
   static const String id = 'Company';
 
-  const Company({Key? key}) : super(key: key);
+  const Companies({Key? key}) : super(key: key);
 
   @override
-  CompanyState createState() => CompanyState();
+  CompaniesState createState() => CompaniesState();
 }
 
-class CompanyState extends State<Company> {
+class CompaniesState extends State<Companies> {
   late String _authToken;
   late int _userId;
   late int _selectedUserAddress;
@@ -49,17 +42,6 @@ class CompanyState extends State<Company> {
     });
   }
 
-  List<Item> companyList = <Item>[
-    const Item('assets/images/n3.png', 'Pionear Tech'),
-    const Item('assets/images/n2.png', 'Golang Info'),
-    const Item('assets/images/n1.png', 'ACC IT'),
-    const Item('assets/images/n4.png', 'PVT. LTD.'),
-    const Item('assets/images/n3.png', 'Pionear Tech'),
-    const Item('assets/images/n2.png', 'Golang Info'),
-    const Item('assets/images/n1.png', 'ACC IT'),
-    const Item('assets/images/n4.png', 'PVT. LTD.'),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +49,7 @@ class CompanyState extends State<Company> {
         drawer: const NavBar(),
         appBar: AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text('Company'),
+          title: const Text('Companies'),
           centerTitle: true,
           titleSpacing: 0,
           actions: [
@@ -76,7 +58,7 @@ class CompanyState extends State<Company> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => const GeneralSettings()));
                 },
-                icon: const Icon(Icons.location_city))
+                icon: const Icon(Icons.location_pin))
           ],
           flexibleSpace: Container(
             decoration: const BoxDecoration(
@@ -113,7 +95,7 @@ class CompanyState extends State<Company> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CompanyDetail(companyId: 1)));
+            MaterialPageRoute(builder: (context) => CompanyJobsDetails(companyId: e['company'].id,)));
       },
       child: Container(
           decoration: const BoxDecoration(
@@ -130,22 +112,16 @@ class CompanyState extends State<Company> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
-                Icons.store,
+                Icons.maps_home_work_outlined,
                 size: 30,
                 color: appColor,
               ),
               const SizedBox(height: 4),
-              boldText(e.name),
+              boldText(e['company'].name),
               const SizedBox(height: 4),
               greyTextSmall('('+ e['advertisement_count'].toString() +')')
             ],
           )),
     );
   }
-}
-
-class Item {
-  const Item(this.img, this.name);
-  final String img;
-  final String name;
 }

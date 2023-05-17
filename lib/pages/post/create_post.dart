@@ -4,12 +4,12 @@ import 'package:jobfinder/enums.dart';
 import 'package:jobfinder/models/Advertisement/Job.dart';
 import 'package:jobfinder/models/User/UserAddress.dart';
 import 'package:jobfinder/models/User/UserCompany.dart';
+import 'package:jobfinder/pages/post/job_details.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
 import 'package:jobfinder/services/Advertisement/JobService.dart';
 import 'package:jobfinder/services/User/UserAddressService.dart';
 import 'package:jobfinder/services/User/UserCompanyService.dart';
-import 'package:jobfinder/widget/checkbox.dart';
 import 'package:jobfinder/widget/navbar.dart';
 import 'package:provider/provider.dart';
 
@@ -22,13 +22,9 @@ class CreatePost extends StatefulWidget {
 
 enum SingingCharacter { var1 , var2, var3, var4 }
 
-
-
 class _CreatePostState extends State<CreatePost> {
-
   SingingCharacter? _character = SingingCharacter.var1;
   SingingCharacter? _character2 = SingingCharacter.var3;
-
 
   String? _selectedEmploymentType = Enums.employmentType.values.first;
   String? _selectedPeriod = Enums.period.values.first;
@@ -56,18 +52,13 @@ class _CreatePostState extends State<CreatePost> {
     _jobService = JobService(_authToken);
   }
 
-
-
   final titleController = TextEditingController();
   final descriptionNameController = TextEditingController();
 
   int? selectedAddress;
   int? selectedCompany;
   int? selectedJob;
-
-
-
-
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +67,7 @@ class _CreatePostState extends State<CreatePost> {
         drawer: const NavBar(),
         appBar: AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text('Post'),
+          title: const Text('Create Post'),
           centerTitle: true,
           titleSpacing: 0,
           actions: [
@@ -92,10 +83,9 @@ class _CreatePostState extends State<CreatePost> {
           ),
           elevation: 0,
         ),
-      body: _buildBody(),
+      body: !isLoading ? _buildBody() : const Center(child: CircularProgressIndicator()),
     );
   }
-
 
   Widget _buildBody() {
     return Container(
@@ -247,7 +237,6 @@ class _CreatePostState extends State<CreatePost> {
                   ],
                 )): SizedBox(height: 1,),
 
-
             SizedBox(height: 14,),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
@@ -305,13 +294,10 @@ class _CreatePostState extends State<CreatePost> {
                         controller: titleController,
                         decoration: InputDecoration(labelText: 'Please Enter Your Post Title ',
                         enabledBorder: OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey),),
-                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)
-                      )
-                      )
+                        focusedBorder: OutlineInputBorder(borderSide: BorderSide(width: 1, color: Colors.grey)))
                       ),
                   ],
                 )
-
             ),
 
             SizedBox(height: 14,),
@@ -427,9 +413,6 @@ class _CreatePostState extends State<CreatePost> {
                   ],
                 )):SizedBox(height: 1,),
 
-
-
-
             SizedBox(height: 12,),
             _character == SingingCharacter.var2 ?
             Container(
@@ -476,7 +459,7 @@ class _CreatePostState extends State<CreatePost> {
                     data['job_title'] = titleController.text.toString();
                   }
                   else {
-                    data['job_it'] = selectedJob.toString();
+                    data['job_id'] = selectedJob.toString();
                   }
 
                   if(_character2 == SingingCharacter.var3){
@@ -491,28 +474,21 @@ class _CreatePostState extends State<CreatePost> {
                   data['period'] = Enums.period.entries.firstWhere((element) => element.value == _selectedPeriod).key.toString();//.toString()
                   data['purpose'] = _character == SingingCharacter.var1 ? 1.toString() : 2.toString();
 
-
                   if (true) {
-
-                      _advertisementService.store(data).then((value) => {
-                        print(value.id)
-                        //Navigator.pop(context),
-                      });
-
-
+                    setState(() {
+                      isLoading = true;
+                    });
+                    _advertisementService.store(data).then((value) => {
+                    Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => JobDetails(advertisementId: value.id)))
+                    });
                   }
                 },
                 child: Text('Publish'),
               ),
             )
-
-
-
           ],
         )
     );
   }
-
-
-
 }

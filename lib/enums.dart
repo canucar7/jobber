@@ -56,6 +56,12 @@ class Enums {
     4 : 'Intern',
   };
 
+  static const Map<int, String> jobPurpose = {
+    1 : 'Looking For Job',
+    2 : 'Looking For Employee',
+  };
+
+
   static const Map<int, String> period = {
     1 : '7 Days',
     2 : '15 Days',

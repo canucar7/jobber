@@ -46,7 +46,7 @@ class Advertisement {
       companyId= json['company_id'] != null ? int.parse(json['company_id'].toString()) : null,
       purpose= int.parse(json['purpose'].toString()),
       status= json['status'],
-      jobId= json['job_id'] != null ? int.parse(json['job_id']) : null,
+      jobId= json['job_id'] != null ? int.parse(json['job_id'].toString()) : null,
       jobTitle= json['job_title'] != null ? (json['job_title'].toString()) : null,
       employmentType= json['employment_type'].toString(),
       description= json['description'] != null ? (json['description'].toString()) : null,

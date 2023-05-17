@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jobfinder/pages/category_details.dart';
 import 'package:jobfinder/pages/company_detail.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
@@ -96,7 +97,7 @@ class CategoriesState extends State<Categories> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) => const CompanyDetail(companyId: 1)));
+            MaterialPageRoute(builder: (context) => CategoryDetails(jobId: e['job'].id)));
       },
       child: Container(
           decoration: const BoxDecoration(
@@ -113,7 +114,7 @@ class CategoriesState extends State<Categories> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
-                Icons.location_city,
+                Icons.category,
                 size: 30,
                 color: appColor,
               ),

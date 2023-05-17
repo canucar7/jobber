@@ -1,44 +1,45 @@
 import 'package:flutter/material.dart';
-import 'package:jobfinder/models/Advertisement/AdvertisementApplication.dart';
+import 'package:jobfinder/models/Advertisement/Advertisement.dart';
 import 'package:jobfinder/pages/post/job_details.dart';
+import 'package:jobfinder/pages/post/my_posts_applications.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
-import 'package:jobfinder/services/Advertisement/AdvertisementApplicationService.dart';
+import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/navbar.dart';
 import 'package:provider/provider.dart';
-import '../components/styles.dart';
+import '../../components/styles.dart';
 
-class AppliedJobs extends StatefulWidget {
-  static const String id = 'AppliedJobs';
+class MyJobs extends StatefulWidget {
+  static const String id = 'MyJobs';
 
-  const AppliedJobs({Key? key}) : super(key: key);
+  const MyJobs({Key? key}) : super(key: key);
 
   @override
-  _AppliedJobsState createState() => _AppliedJobsState();
+  _MyJobsState createState() => _MyJobsState();
 }
 
-class _AppliedJobsState extends State<AppliedJobs> {
+class _MyJobsState extends State<MyJobs> {
   late String _authToken;
   late int _userId;
 
-  late AdvertisementApplicationService _advertisementApplicationService;
+  late AdvertisementService _advertisementService;
 
-  List<AdvertisementApplication>? advertisementApplications = null;
+  List<Advertisement>? advertisements = null;
 
   @override
   void initState() {
     super.initState();
     _authToken = context.read<UserProvider>().auth!.accessToken;
     _userId = context.read<UserProvider>().auth!.user.id;
-    _advertisementApplicationService = AdvertisementApplicationService(_authToken, _userId);
-    _loadAdvertisementApplications();
+    _advertisementService = AdvertisementService(_authToken, _userId);
+    _loadAdvertisements();
   }
 
-  Future<void> _loadAdvertisementApplications() async {
-    List<AdvertisementApplication> loadedAdvertisementApplications = await _advertisementApplicationService.index();
+  Future<void> _loadAdvertisements() async {
+    List<Advertisement> loadedAdvertisements = await _advertisementService.allUserApplications(_userId);
     setState(() {
-      advertisementApplications = loadedAdvertisementApplications;
+      advertisements = loadedAdvertisements;
     });
   }
 
@@ -48,7 +49,7 @@ class _AppliedJobsState extends State<AppliedJobs> {
         drawer: const NavBar(),
         appBar: AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text('Applied Positions'),
+          title: const Text('My Posts'),
           centerTitle: true,
           titleSpacing: 0,
           actions: [
@@ -69,7 +70,7 @@ class _AppliedJobsState extends State<AppliedJobs> {
           ),
           elevation: 0,
         ),
-        body: advertisementApplications == null ? Center(child: CircularProgressIndicator()) : _buildBody());
+        body: advertisements == null ? Center(child: CircularProgressIndicator()) : _buildBody());
   }
 
   Widget _buildBody() {
@@ -77,20 +78,20 @@ class _AppliedJobsState extends State<AppliedJobs> {
         padding: const EdgeInsets.symmetric(vertical: 16),
         child: ListView.builder(
           padding: EdgeInsets.zero,
-          itemCount: advertisementApplications!.length,
+          itemCount: advertisements!.length,
           physics: const ScrollPhysics(),
           shrinkWrap: true,
           itemBuilder: (context, i) => Column(
-            children: [_buildJobs(advertisementApplications![i])],
+            children: [_buildJobs(advertisements![i])],
           ),
         ));
   }
 
-  Widget _buildJobs(advertisementApplication) {
+  Widget _buildJobs(advertisement) {
     return GestureDetector(
       onTap: () {
         Navigator.push(context,
-            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: advertisementApplication.advertisement.id,)));
+            MaterialPageRoute(builder: (context) =>  JobDetails(advertisementId: advertisement.id,)));
       },
       child: Container(
         padding: const EdgeInsets.all(16),
@@ -114,7 +115,7 @@ class _AppliedJobsState extends State<AppliedJobs> {
                 Container(
                     padding: const EdgeInsets.only(right: 10),
                     child: Icon(
-                        advertisementApplication.advertisement?.company != null ? Icons.maps_home_work_outlined : Icons.person,
+                        advertisement?.company != null ? Icons.maps_home_work_outlined : Icons.person,
                         size: 30,
                         color: appColor,
                       ),),
@@ -122,8 +123,8 @@ class _AppliedJobsState extends State<AppliedJobs> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      blackHeadingSmall(advertisementApplication.advertisement?.job != null ? advertisementApplication.advertisement?.job?.name : advertisementApplication.advertisement?.jobTitle),
-                      greyTextSmall(advertisementApplication.advertisement?.company != null ? advertisementApplication.advertisement?.company?.name : advertisementApplication.advertisement?.user.name,)
+                      blackHeadingSmall(advertisement?.job != null ? advertisement?.job?.name : advertisement?.jobTitle.toString()),
+                      greyTextSmall(advertisement?.company != null ? advertisement?.company?.name : advertisement?.user.name,)
                     ],
                   ),
                 ),
@@ -132,17 +133,20 @@ class _AppliedJobsState extends State<AppliedJobs> {
             ),
             Container(
               padding: const EdgeInsets.symmetric(vertical: 8),
-              child: greyTextSmall(advertisementApplication.advertisement?.address?.fullAddress ?? ''),
+              child: greyTextSmall(advertisement?.address?.fullAddress ?? ''),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 boldText(''),
                 MyElevatedButton(
-                    onPressed: () {},
-                    text: btnText('Appled'),
+                    onPressed: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) =>  MyPostsApplications(advertisementId: advertisement.id,)));
+                    },
+                    text: btnText('View Applications'),
                     height: 28,
-                    width: 80)
+                    width: 145)
               ],
             ),
           ],

@@ -1,5 +1,9 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:jobfinder/helpers/map_icon.dart';
 import 'package:jobfinder/models/User/UserCompany.dart';
+import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/pages/view_jobs.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/User/UserCompanyService.dart';
@@ -20,13 +24,14 @@ class CompanyDetail extends StatefulWidget {
 }
 
 class _CompanyDetailState extends State<CompanyDetail> {
-  final Set<Marker> _markers = {};
-
   late String _authToken;
   late int _userId;
   late UserCompanyService _userCompanyService;
 
   late UserCompany? company = null;
+
+  late BitmapDescriptorSingleton _mapAttributes;
+  final Set<Marker> _markers = {};
 
   @override
   void initState() {
@@ -35,6 +40,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
     _userId = context.read<UserProvider>().auth!.user.id;
     _userCompanyService = UserCompanyService(_authToken, _userId);
     getCompanyDetails();
+    getMapAttributes();
   }
 
   void getCompanyDetails() async {
@@ -43,46 +49,23 @@ class _CompanyDetailState extends State<CompanyDetail> {
       company = fetchCompany;
     });
   }
-
-
-
-
-
+  
+  void getMapAttributes() async {
+    _mapAttributes = BitmapDescriptorSingleton();
+    await _mapAttributes.initialize();
+  }
+  
   void _onMapCreated(GoogleMapController controller) async {
-    // Map Style
-    String style = '''
-    [
-      {
-        "featureType": "all",
-        "elementType": "all",
-        "stylers": [
-          { "visibility": "off" }
-        ]
-      },
-      {
-        "featureType": "road",
-        "elementType": "labels.text",
-        "stylers": [
-          { "visibility": "on" }
-        ]
-      }
-    ]
-  ''';
-
-    BitmapDescriptor customMarker = await getCustomMarker();
-
+    controller.setMapStyle(_mapAttributes.mapStyle);
     setState(() {
       _markers.add(
         Marker(
           markerId: MarkerId('Id-1'),
           position: LatLng(company!.address.latitude!, company!.address.longitude!),
-          icon: customMarker,
+          icon: _mapAttributes.companyIcon
         ),
       );
     });
-
-    //controller.setMapStyle(style);
-
   }
 
   Future<BitmapDescriptor> getCustomMarker() async {
@@ -95,21 +78,22 @@ class _CompanyDetailState extends State<CompanyDetail> {
     return customMarker;
   }
 
-
   @override
   Widget build(BuildContext context) {
-    if (company == null) {
-      return const Center(child: CircularProgressIndicator());
-    } else {
       return Scaffold(
           drawer: const NavBar(),
           appBar: AppBar(
             iconTheme: const IconThemeData(color: Colors.white),
-            title:  Text(company!.name),
+            title:  Text(company == null ? '' : company!.name),
             centerTitle: true,
             titleSpacing: 0,
             actions: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.share)),
+              IconButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const GeneralSettings()));
+                  },
+                  icon: const Icon(Icons.location_pin)),
             ],
             flexibleSpace: Container(
               decoration: const BoxDecoration(
@@ -121,8 +105,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
             ),
             elevation: 0,
           ),
-          body: _buildBody());
-    }
+          body: company == null ? const Center(child: CircularProgressIndicator()) : _buildBody());
   }
 
   Widget _buildBody() {
@@ -152,10 +135,10 @@ class _CompanyDetailState extends State<CompanyDetail> {
       width: double.infinity,
       height: MediaQuery.of(context).size.height * 0.25,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         image: DecorationImage(
-            image: AssetImage('assets/images/p2.jpg'), fit: BoxFit.cover),
+            image: NetworkImage(company!.coverImageUrl.toString()), fit: BoxFit.cover),
       ),
     );
   }
@@ -178,18 +161,20 @@ class _CompanyDetailState extends State<CompanyDetail> {
           clipBehavior: Clip.none,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                     padding: const EdgeInsets.only(right: 10),
-                    child: Image.asset('assets/images/n3.png',
-                        width: 30, height: 30)),
+                    child: Icon(
+                      Icons.maps_home_work_outlined,
+                      size: 30,
+                      color: appColor,
+                    )),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       blackHeadingSmall(company!.name),
-                      greyTextSmall('Mumbai, India')
                     ],
                   ),
                 ),
@@ -271,7 +256,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
                   _buildOverviewList(Icons.location_on_outlined, 'Country',
                       company!.address.countryId.toString()),
                   _buildOverviewList(Icons.location_on_outlined, 'Location',
-                      company!.address.neighborhoodName + " " + company!.address.remainingAddress+
+                      company!.address.neighborhoodName + " " + (company!.address.remainingAddress ?? '')+
                           "\n"+company!.address.districtId.toString() + "/" + company!.address.cityId.toString() ),
                   _buildOverviewList(
                       Icons.call_outlined, 'Phone Number', company!.phoneNumber.toString()),
@@ -280,9 +265,41 @@ class _CompanyDetailState extends State<CompanyDetail> {
                 ],
               )),
           const SizedBox(height: 8),
-          blackHeadingSmall('Destination Map'.toUpperCase()),
           Container(
-            height: 400,
+            padding: const EdgeInsets.only(top: 16, left: 16),
+            child: blackHeading('Address'.toUpperCase()),
+          ),
+          Container(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
+              margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 20.0,
+                  ),
+                ],
+                borderRadius: BorderRadius.all(Radius.circular(6.0)),
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const SizedBox(
+                        height: double.infinity,
+                        child: Icon(Icons.circle, size: 14)),
+                    visualDensity:
+                    const VisualDensity(horizontal: 0, vertical: -4),
+                    minLeadingWidth: 0,
+                    title: greyText(company!.address.fullAddress ?? ''),
+                  ),
+                ],
+              )),
+          const SizedBox(height: 8),
+          blackHeadingSmall('Location'.toUpperCase()),
+          _mapAttributes == null ? const Center(child: CircularProgressIndicator())
+              : Container(
+            height: 300,
             margin: const EdgeInsets.symmetric(vertical: 10),
             decoration: const BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(6)),
@@ -296,8 +313,16 @@ class _CompanyDetailState extends State<CompanyDetail> {
               myLocationEnabled: true,
               compassEnabled: true,
               zoomControlsEnabled: true,
-            ),
-          ),
+              gestureRecognizers: Set()
+                ..add(Factory<PanGestureRecognizer>(
+                        () => PanGestureRecognizer()))
+                ..add(Factory<ScaleGestureRecognizer>(
+                        () => ScaleGestureRecognizer()))
+                ..add(Factory<TapGestureRecognizer>(
+                        () => TapGestureRecognizer()))
+                ..add(Factory<VerticalDragGestureRecognizer>(
+                        () => VerticalDragGestureRecognizer())),
+            ),),
           const SizedBox(height: 16),
           blackHeadingSmall('Job Vacancies'.toUpperCase()),
           SingleChildScrollView(

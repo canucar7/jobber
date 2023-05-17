@@ -7,6 +7,7 @@ class BitmapDescriptorSingleton {
   BitmapDescriptor companyIcon;
   BitmapDescriptor userIcon;
   BitmapDescriptor youIcon;
+  String mapStyle;
 
   factory BitmapDescriptorSingleton() {
     if (_instance == null) {
@@ -18,6 +19,7 @@ class BitmapDescriptorSingleton {
   BitmapDescriptorSingleton._internal()
       : companyIcon = BitmapDescriptor.defaultMarker,
         userIcon = BitmapDescriptor.defaultMarker,
+        mapStyle = "",
         youIcon = BitmapDescriptor.defaultMarker;
 
   Future<void> initialize() async {
@@ -34,5 +36,37 @@ class BitmapDescriptorSingleton {
       config,
       'assets/images/marker-you.png',
     );
+    mapStyle = '''
+    [      {        "featureType": "poi",        "stylers": [          { "visibility": "off" }        ]
+      },
+      {
+        "featureType": "transit",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [
+          { "visibility": "on" }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "labels.icon",
+        "stylers": [
+          { "visibility": "off" }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "labels.text",
+        "stylers": [
+          { "visibility": "on" }
+        ]
+      }
+    ]
+  ''';
   }
 }
