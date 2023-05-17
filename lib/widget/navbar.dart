@@ -10,6 +10,7 @@ import 'package:jobfinder/pages/invite_friend.dart';
 import 'package:jobfinder/pages/auth/login.dart';
 import 'package:jobfinder/pages/notification.dart';
 import 'package:jobfinder/pages/post/create_post.dart';
+import 'package:jobfinder/pages/post/my_posts.dart';
 import 'package:jobfinder/pages/user/profile.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 
@@ -77,28 +78,20 @@ class NavBar extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const CreatePost()));
             },
           ),
-          ListTile(
+          /*ListTile(
             leading: const Icon(Icons.person),
             title: const Text('Add Address'),
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const AddAddress()));
             },
-          ),
+          ),*/
           ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('View Profile'),
+            leading: const Icon(Icons.done_all),
+            title: const Text('My Posts'),
             onTap: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Profile()));
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.bookmark),
-            title: const Text('Bookmark'),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Bookmark()));
+                  MaterialPageRoute(builder: (context) => const MyJobs()));
             },
           ),
           ListTile(
@@ -118,6 +111,14 @@ class NavBar extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('View Profile'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Profile()));
+            },
+          ),
+          /*ListTile(
             leading: const Icon(Icons.inventory_outlined),
             title: const Text('Invite Friend'),
             onTap: () {
@@ -136,7 +137,7 @@ class NavBar extends StatelessWidget {
                   MaterialPageRoute(
                       builder: (context) => const NotificationScreen()));
             },
-          ),
+          ),*/
           ListTile(
             leading: const Icon(Icons.logout),
             title: const Text('Log Out'),

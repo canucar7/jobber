@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:jobfinder/helpers/map_icon.dart';
 import 'package:jobfinder/models/User/UserCompany.dart';
+import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/pages/view_jobs.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/User/UserCompanyService.dart';
@@ -87,7 +88,12 @@ class _CompanyDetailState extends State<CompanyDetail> {
             centerTitle: true,
             titleSpacing: 0,
             actions: [
-              IconButton(onPressed: () {}, icon: const Icon(Icons.share)),
+              IconButton(
+                  onPressed: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => const GeneralSettings()));
+                  },
+                  icon: const Icon(Icons.location_pin)),
             ],
             flexibleSpace: Container(
               decoration: const BoxDecoration(
@@ -129,10 +135,10 @@ class _CompanyDetailState extends State<CompanyDetail> {
       width: double.infinity,
       height: MediaQuery.of(context).size.height * 0.25,
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(4)),
         image: DecorationImage(
-            image: AssetImage('assets/images/p2.jpg'), fit: BoxFit.cover),
+            image: NetworkImage(company!.coverImageUrl.toString()), fit: BoxFit.cover),
       ),
     );
   }
@@ -155,18 +161,20 @@ class _CompanyDetailState extends State<CompanyDetail> {
           clipBehavior: Clip.none,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Container(
                     padding: const EdgeInsets.only(right: 10),
-                    child: Image.asset('assets/images/n3.png',
-                        width: 30, height: 30)),
+                    child: Icon(
+                      Icons.maps_home_work_outlined,
+                      size: 30,
+                      color: appColor,
+                    )),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       blackHeadingSmall(company!.name),
-                      greyTextSmall('Mumbai, India')
                     ],
                   ),
                 ),
@@ -248,7 +256,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
                   _buildOverviewList(Icons.location_on_outlined, 'Country',
                       company!.address.countryId.toString()),
                   _buildOverviewList(Icons.location_on_outlined, 'Location',
-                      company!.address.neighborhoodName + " " + company!.address.remainingAddress+
+                      company!.address.neighborhoodName + " " + (company!.address.remainingAddress ?? '')+
                           "\n"+company!.address.districtId.toString() + "/" + company!.address.cityId.toString() ),
                   _buildOverviewList(
                       Icons.call_outlined, 'Phone Number', company!.phoneNumber.toString()),
@@ -257,7 +265,38 @@ class _CompanyDetailState extends State<CompanyDetail> {
                 ],
               )),
           const SizedBox(height: 8),
-          blackHeadingSmall('Destination Map'.toUpperCase()),
+          Container(
+            padding: const EdgeInsets.only(top: 16, left: 16),
+            child: blackHeading('Address'.toUpperCase()),
+          ),
+          Container(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
+              margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 20.0,
+                  ),
+                ],
+                borderRadius: BorderRadius.all(Radius.circular(6.0)),
+              ),
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const SizedBox(
+                        height: double.infinity,
+                        child: Icon(Icons.circle, size: 14)),
+                    visualDensity:
+                    const VisualDensity(horizontal: 0, vertical: -4),
+                    minLeadingWidth: 0,
+                    title: greyText(company!.address.fullAddress ?? ''),
+                  ),
+                ],
+              )),
+          const SizedBox(height: 8),
+          blackHeadingSmall('Location'.toUpperCase()),
           _mapAttributes == null ? const Center(child: CircularProgressIndicator())
               : Container(
             height: 300,

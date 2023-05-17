@@ -4,25 +4,26 @@ import 'package:jobfinder/pages/post/job_details.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Advertisement/AdvertisementApplicationService.dart';
+import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:jobfinder/widget/navbar.dart';
 import 'package:provider/provider.dart';
-import '../components/styles.dart';
+import '../../components/styles.dart';
 
-class AppliedJobs extends StatefulWidget {
-  static const String id = 'AppliedJobs';
-
-  const AppliedJobs({Key? key}) : super(key: key);
+class MyPostsApplications extends StatefulWidget {
+  static const String id = 'MyPostsApplications';
+  final int advertisementId;
+  const MyPostsApplications({Key? key, required this.advertisementId}) : super(key: key);
 
   @override
-  _AppliedJobsState createState() => _AppliedJobsState();
+  _MyPostsApplicationsState createState() => _MyPostsApplicationsState();
 }
 
-class _AppliedJobsState extends State<AppliedJobs> {
+class _MyPostsApplicationsState extends State<MyPostsApplications> {
   late String _authToken;
   late int _userId;
 
-  late AdvertisementApplicationService _advertisementApplicationService;
+  late AdvertisementService _advertisementService;
 
   List<AdvertisementApplication>? advertisementApplications = null;
 
@@ -31,12 +32,12 @@ class _AppliedJobsState extends State<AppliedJobs> {
     super.initState();
     _authToken = context.read<UserProvider>().auth!.accessToken;
     _userId = context.read<UserProvider>().auth!.user.id;
-    _advertisementApplicationService = AdvertisementApplicationService(_authToken, _userId);
+    _advertisementService = AdvertisementService(_authToken, _userId);
     _loadAdvertisementApplications();
   }
 
   Future<void> _loadAdvertisementApplications() async {
-    List<AdvertisementApplication> loadedAdvertisementApplications = await _advertisementApplicationService.index();
+    List<AdvertisementApplication> loadedAdvertisementApplications = await _advertisementService.applications(widget.advertisementId);
     setState(() {
       advertisementApplications = loadedAdvertisementApplications;
     });

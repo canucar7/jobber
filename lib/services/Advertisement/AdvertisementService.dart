@@ -1,5 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:jobfinder/models/Advertisement/Advertisement.dart';
+import 'package:jobfinder/models/Advertisement/AdvertisementApplication.dart';
 import 'dart:convert';
 
 import 'package:jobfinder/services/AbstractService.dart';
@@ -62,6 +63,23 @@ class AdvertisementService extends AbstractService {
     }
   }
 
+  Future<List<Advertisement>> allUserApplications(int userId) async {
+    final response = await http.get(Uri.parse(super.apiUrl+"/user/$userId/advertisements"),headers: headers);
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+
+      List<Advertisement> advertisements = [];
+      for (var advertisement in jsonData['data']) {
+        advertisements.add(Advertisement.fromJson(advertisement));
+      }
+
+      return advertisements;
+    } else {
+      throw Exception('Failed to load advertisements');
+    }
+  }
+
   Future<Advertisement> store(body) async {
     final response = await http.post(
         Uri.parse(apiUrl),
@@ -88,6 +106,23 @@ class AdvertisementService extends AbstractService {
       return Advertisement.fromJson(jsonData['data']);
     } else {
       throw Exception('Failed to load advertisements');
+    }
+  }
+
+  Future<List<AdvertisementApplication>> applications(int advertisementId) async {
+    final response = await http.get(Uri.parse(apiUrl+"/$advertisementId/applications"),headers: headers);
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+
+      List<AdvertisementApplication> advertisements = [];
+      for (var advertisement in jsonData['data']) {
+        advertisements.add(AdvertisementApplication.fromJson(advertisement));
+      }
+
+      return advertisements;
+    } else {
+      throw Exception('Failed to load advertisement applications');
     }
   }
 }

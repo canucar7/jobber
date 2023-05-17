@@ -7,6 +7,7 @@ class UserAddress {
   int districtId;
   String neighborhoodName;
   String? remainingAddress;
+  String? fullAddress;
   double? latitude;
   double? longitude;
   String? deletedAt;
@@ -22,6 +23,7 @@ class UserAddress {
     required this.districtId,
     required this.neighborhoodName,
     this.remainingAddress,
+    this.fullAddress,
     this.latitude,
     this.longitude,
     this.deletedAt,
@@ -38,6 +40,7 @@ class UserAddress {
       districtId = json['district_id'],
       neighborhoodName = json['neighborhood_name'],
       remainingAddress = json['remaining_address'] != null ? json['remaining_address'] : null,
+      fullAddress = json['full_address'] != null ? json['full_address'] : null,
       latitude = double.tryParse(json['latitude'].toString()),
       longitude = double.tryParse(json['longitude'].toString()),
       deletedAt = json['deleted_at'],
