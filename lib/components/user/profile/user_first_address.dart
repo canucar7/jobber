@@ -4,10 +4,13 @@ import 'package:jobfinder/config.dart';
 import 'package:jobfinder/models/Location/City.dart';
 import 'package:jobfinder/models/Location/District.dart';
 import 'package:jobfinder/models/User/UserAddress.dart';
+import 'package:jobfinder/pages/filter.dart';
+import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Location/CityService.dart';
 import 'package:jobfinder/services/Location/DistrictService.dart';
 import 'package:jobfinder/services/User/UserAddressService.dart';
+import 'package:jobfinder/widget/navbar.dart';
 import 'package:provider/provider.dart';
 
 
@@ -69,46 +72,32 @@ class _UserFirstAddressesState extends State<UserFirstAddresses> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(height:30),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              blackHeadingSmall('address'.toUpperCase()),
-            ],
+    return Scaffold(
+      backgroundColor: Colors.white,
+      drawer: const NavBar(),
+      appBar: AppBar(
+        iconTheme: const IconThemeData(color: Colors.white),
+        title: const Text('First Address'),
+        centerTitle: true,
+        titleSpacing: 0,
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: <Color>[appColor2, appColor]),
           ),
         ),
-        Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-            margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 20.0,
-                ),
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(6.0)),
-            ),
-            child: Column(
-              children: [
-                _showModal(),
-                const SizedBox(height: 10),
-              ],
-            )),
-      ],
-    );
+        elevation: 0,
+      ),
+      body: _showModal(),
+    );;
   }
 
 
    Widget _showModal() {
         return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 50, horizontal: 16),
           margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
