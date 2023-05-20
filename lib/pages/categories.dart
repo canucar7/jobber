@@ -58,7 +58,7 @@ class CategoriesState extends State<Categories> {
                   Navigator.push(context,
                       MaterialPageRoute(builder: (context) => const GeneralSettings()));
                 },
-                icon: const Icon(Icons.location_city))
+                icon: const Icon(Icons.location_pin))
           ],
           flexibleSpace: Container(
             decoration: const BoxDecoration(
