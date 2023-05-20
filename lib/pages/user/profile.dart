@@ -62,12 +62,12 @@ class _ProfileState extends State<Profile> {
             UserInformations(),
             UserAddresses(),
             UserCompanies(),
-            UserExperiences(),
-            UserEducations(),
-            UserSkills(),
+            //UserExperiences(),
+            //UserEducations(),
+            //UserSkills(),
             UserCertificates(),
             UserForeignLanguages(),
-            UserResume(),
+            //UserResume(),
             const SizedBox(height: 20)
           ],
     ));

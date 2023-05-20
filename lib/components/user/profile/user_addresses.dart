@@ -99,42 +99,46 @@ class _UserAddressesState extends State<UserAddresses> {
   }
 
   Widget _listBuilder() {
-    return FutureBuilder<List<UserAddress>>(
-      future: addresses,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final addressess = snapshot.data!;
-          return ListView.builder(
-            itemCount: addressess.length,
-            itemBuilder: (context, index) {
-              final address = addressess[index];
-              return ListTile(
-                title: Text(address.neighborhoodName),
-                trailing: Wrap(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        _showModal(true, address);
-                      },
-                      child: Icon(Icons.edit_calendar_outlined,color: appColor,),
+    return StatefulBuilder(
+      builder: (context, setState) {
+        return FutureBuilder<List<UserAddress>>(
+          future: addresses,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final addresses = snapshot.data!;
+              return ListView.builder(
+                itemCount: addresses.length,
+                itemBuilder: (context, index) {
+                  final address = addresses[index];
+                  return ListTile(
+                    title: Text(address.neighborhoodName),
+                    trailing: Wrap(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            _showModal(true, address);
+                          },
+                          child: Icon(Icons.edit_calendar_outlined,color: appColor,),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            _showDeleteConfirmationDialog(address);
+                          },
+                          child: Icon(Icons.delete,color: appColor),
+                        ),
+                      ],
                     ),
-                    GestureDetector(
-                      onTap: () {
-                        _showDeleteConfirmationDialog(address);
-                      },
-                      child: Icon(Icons.delete,color: appColor),
-                    ),
-                  ],
-                ),
+                  );
+                },
+                shrinkWrap: true,
               );
-            },
-            shrinkWrap: true,
-          );
-        } else if (snapshot.hasError) {
-          return Center(child: Text('${snapshot.error}'));
-        } else {
-          return Center(child: CircularProgressIndicator());
-        }
+            } else if (snapshot.hasError) {
+              return Center(child: Text('${snapshot.error}'));
+            } else {
+              return Center(child: CircularProgressIndicator());
+            }
+          },
+        );
       },
     );
   }
@@ -143,18 +147,6 @@ class _UserAddressesState extends State<UserAddresses> {
     int? selectedCity;
     int? selectedDistrict;
 
-    handleCityChange(int? value) {
-      setState(() {
-        selectedCity = value;
-        districts = _districtService.getDistricts(selectedCity);
-        selectedDistrict = null;
-      });
-    }
-
-    handleDistrictChange(int? value) {
-      selectedDistrict = value;
-    }
-
     final neighborhoodNameController = TextEditingController();
     final remainingAddressController = TextEditingController();
 
@@ -162,130 +154,152 @@ class _UserAddressesState extends State<UserAddresses> {
       neighborhoodNameController.text = address!.neighborhoodName;
       remainingAddressController.text = address.remainingAddress!;
       selectedCity = address.cityId;
-      handleCityChange(selectedCity);
       selectedDistrict = address.districtId;
     }
 
-    showModalBottomSheet(context: context, builder: (BuildContext context) {
-      return StatefulBuilder(builder: (context, setState) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FutureBuilder<List<City>>(
-              future: cities,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasData) {
-                    final finalData = snapshot.data!;
-                    return DropdownButton<int>(
-                      isExpanded: true,
-                      value: selectedCity,
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          handleCityChange(newValue);
-                        });
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FutureBuilder<List<City>>(
+                      future: cities,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasData) {
+                          final finalData = snapshot.data!;
+                          return DropdownButton<int>(
+                            isExpanded: true,
+                            value: selectedCity,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                selectedCity = newValue;
+                                districts = _districtService.getDistricts(selectedCity);
+                                selectedDistrict = null;
+                              });
+                            },
+                            items: finalData
+                                .map(
+                                  (item) => DropdownMenuItem<int>(
+                                value: item.id,
+                                child: Text(item.name),
+                              ),
+                            )
+                                .toList(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text('Failed to load: ${snapshot.error}');
+                        } else {
+                          return Text('Unknown error');
+                        }
                       },
-                      items: finalData
-                          .map(
-                            (item) => DropdownMenuItem<int>(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
-                      ).toList(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Failed to load: ${snapshot.error}');
-                  } else {
-                    return Text('Unknown error');
-                  }
-                },
-              ),
-              FutureBuilder<List<District>>(
-                future: districts,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasData) {
-                    final finalData = snapshot.data!;
-                    return DropdownButton<int>(
-                      isExpanded: true,
-                      value: selectedDistrict,
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          handleDistrictChange(newValue);
-                        });
+                    ),
+                    FutureBuilder<List<District>>(
+                      future: districts,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return CircularProgressIndicator();
+                        } else if (snapshot.hasData) {
+                          final finalData = snapshot.data!;
+                          return DropdownButton<int>(
+                            isExpanded: true,
+                            value: selectedDistrict,
+                            onChanged: (int? newValue) {
+                              setState(() {
+                                selectedDistrict = newValue;
+                              });
+                            },
+                            items: finalData
+                                .map(
+                                  (item) => DropdownMenuItem<int>(
+                                value: item.id,
+                                child: Text(item.name),
+                              ),
+                            )
+                                .toList(),
+                          );
+                        } else if (snapshot.hasError) {
+                          return Text('Failed to load: ${snapshot.error}');
+                        } else {
+                          return Text('Unknown error');
+                        }
                       },
-                      items: finalData
-                          .map(
-                            (item) => DropdownMenuItem<int>(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
-                      ).toList(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Failed to load: ${snapshot.error}');
-                  } else {
-                    return Text('Unknown error');
-                  }
-                },
-              ),
-              TextField(
-                controller: neighborhoodNameController,
-                decoration: const InputDecoration(
-                  hintText: 'Neighborhood Name',
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: remainingAddressController,
-                decoration: const InputDecoration(
-                  hintText: 'Remaining Address',
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  final neighborhoodName = neighborhoodNameController.text;
-                  final remainingAddress = remainingAddressController.text;
+                    ),
+                    TextField(
+                      controller: neighborhoodNameController,
+                      decoration: const InputDecoration(
+                        hintText: 'Neighborhood Name',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: remainingAddressController,
+                      decoration: const InputDecoration(
+                        hintText: 'Remaining Address',
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        final neighborhoodName = neighborhoodNameController.text;
+                        final remainingAddress = remainingAddressController.text;
 
-                  if (selectedCity != null && selectedDistrict != null  && neighborhoodName.isNotEmpty && remainingAddress.isNotEmpty) {
-                    final data = {
-                      "country_id": Config.TurkeyId,
-                      "city_id": selectedCity,
-                      "district_id": selectedDistrict,
-                      "neighborhood_name": neighborhoodName,
-                      "remaining_address": remainingAddress,
-                    };
-                    if (isUpdate) {
-                      _userAddressService.update(address!.id, data).then((value) => {
-                        _updateaddresses(),
-                        Navigator.pop(context),
-                      });
-                    } else {
-                      _userAddressService.store(data).then((value) => {
-                        _updateaddresses(),
-                        Navigator.pop(context),
-                      });
-                    }
-                  } else {
-                    //TODO: Buraya hata mesajı ekle
-                  }
-                },
-                child: Text(isUpdate ? 'Update' : 'Save'),
+                        if (selectedCity != null &&
+                            selectedDistrict != null &&
+                            neighborhoodName.isNotEmpty &&
+                            remainingAddress.isNotEmpty) {
+                          final data = {
+                            "country_id": Config.TurkeyId,
+                            "city_id": selectedCity,
+                            "district_id": selectedDistrict,
+                            "neighborhood_name": neighborhoodName,
+                            "remaining_address": remainingAddress,
+                          };
+                          if (isUpdate) {
+                            _userAddressService
+                                .update(address!.id, data)
+                                .then((value) => {
+                              _updateaddresses(),
+                              Navigator.pop(context),
+                            });
+                          } else {
+                            _userAddressService
+                                .store(data)
+                                .then((value) => {
+                              _updateaddresses(),
+                              Navigator.pop(context),
+                            });
+                          }
+                        } else {
+                          //TODO: Buraya hata mesajı ekle
+                        }
+                      },
+                      child: Text(isUpdate ? 'Update' : 'Save'),
+                    ),
+                    const SizedBox(
+                      height: 40,
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: 40,),
-            ],
-          ),
+            );
+          },
         );
-
-      });
-    },
+      },
     );
+
   }
 
   void _showDeleteConfirmationDialog(UserAddress address) {

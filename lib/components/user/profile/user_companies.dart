@@ -186,180 +186,185 @@ class _UserCompaniesState extends State<UserCompanies> {
 
     showModalBottomSheet(isScrollControlled: true,context: context, builder: (BuildContext context) {
       return StatefulBuilder(builder: (context, setState) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: companyNameController,
-                decoration: const InputDecoration(
-                  hintText: 'Company Name',
+        return SingleChildScrollView(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: companyNameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Company Name',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: descriptionController,
-                decoration: const InputDecoration(
-                  hintText: 'Description',
+                const SizedBox(height: 16),
+                TextField(
+                  controller: descriptionController,
+                  decoration: const InputDecoration(
+                    hintText: 'Description',
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: phoneNumberController,
-                decoration: const InputDecoration(
-                  hintText: 'Phone Number',
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  FilteringTextInputFormatter.digitsOnly
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextButton(
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.blueGrey,
-                  textStyle: TextStyle(fontSize: 18),
-                  side: BorderSide(color: Colors.blueGrey)
-                ),
-                onPressed: () async {
-                  final image = await ImagePicker().pickImage(
-                    source: ImageSource.gallery,
-                  );
-                  if (image == null) return;
-
-                  final imageTemp = File(image.path);
-
-                  setState((){
-                    this._image = imageTemp;
-
-                  });
-
-
-                },
-                child: Row(
-                  children: [
-                    Icon(Icons.image),
-                    const SizedBox(width: 8),
-                    Text('Add Photo'),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: phoneNumberController,
+                  decoration: const InputDecoration(
+                    hintText: 'Phone Number',
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    FilteringTextInputFormatter.digitsOnly
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              FutureBuilder<List<City>>(
-                future: cities,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasData) {
-                    final finalData = snapshot.data!;
-                    return DropdownButton<int>(
-                      isExpanded: true,
-                      value: selectedCity,
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          handleCityChange(newValue);
-                        });
-                      },
-                      items: finalData
-                          .map(
-                            (item) => DropdownMenuItem<int>(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
-                      ).toList(),
+                const SizedBox(height: 16),
+                TextButton(
+                  style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.blueGrey,
+                      textStyle: TextStyle(fontSize: 18),
+                      side: BorderSide(color: Colors.blueGrey)
+                  ),
+                  onPressed: () async {
+                    final image = await ImagePicker().pickImage(
+                      source: ImageSource.gallery,
                     );
-                  } else if (snapshot.hasError) {
-                    return Text('Failed to load: ${snapshot.error}');
-                  } else {
-                    return Text('Unknown error');
-                  }
-                },
-              ),
-              FutureBuilder<List<District>>(
-                future: districts,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasData) {
-                    final finalData = snapshot.data!;
-                    return DropdownButton<int>(
-                      isExpanded: true,
-                      value: selectedDistrict,
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          handleDistrictChange(newValue);
-                        });
-                      },
-                      items: finalData
-                          .map(
-                            (item) => DropdownMenuItem<int>(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
-                      ).toList(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Failed to load: ${snapshot.error}');
-                  } else {
-                    return Text('Unknown error');
-                  }
-                },
-              ),
-              TextField(
-                controller: neighborhoodNameController,
-                decoration: const InputDecoration(
-                  hintText: 'Neighborhood Name',
+                    if (image == null) return;
+
+                    final imageTemp = File(image.path);
+
+                    setState((){
+                      this._image = imageTemp;
+
+                    });
+
+
+                  },
+                  child: Row(
+                    children: [
+                      Icon(Icons.image),
+                      const SizedBox(width: 8),
+                      Text('Add Photo'),
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: remainingAddressController,
-                decoration: const InputDecoration(
-                  hintText: 'Remaining Address',
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: ()  {
-                  final name = companyNameController.text;
-                  final description = descriptionController.text;
-                  final phoneNumber = phoneNumberController.text;
-                  final neighborhoodName = neighborhoodNameController.text;
-                  final remainingAddress = remainingAddressController.text;
-
-                  if (name.isNotEmpty && description.isNotEmpty && phoneNumber.isNotEmpty && selectedCity != null && selectedDistrict != null  && neighborhoodName.isNotEmpty && remainingAddress.isNotEmpty) {
-                    final data = {
-                      "name": name,
-                      "description": description,
-                      "phone_number": phoneNumber,
-                      "country_id": Config.TurkeyId.toString(),
-                      "city_id": selectedCity.toString(),
-                      "district_id": selectedDistrict.toString(),
-                      "neighborhood_name": neighborhoodName,
-                      "remaining_address": remainingAddress,
-                    };
-
-
-                    if (isUpdate) {
-                      _userCompanyService.update(company!.id, data,_image).then((value) => {
-                        _updateCompanies(),
-                        Navigator.pop(context),
-                      });
+                const SizedBox(height: 16),
+                FutureBuilder<List<City>>(
+                  future: cities,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasData) {
+                      final finalData = snapshot.data!;
+                      return DropdownButton<int>(
+                        isExpanded: true,
+                        value: selectedCity,
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            handleCityChange(newValue);
+                          });
+                        },
+                        items: finalData
+                            .map(
+                              (item) => DropdownMenuItem<int>(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        ).toList(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Failed to load: ${snapshot.error}');
                     } else {
-                      _userCompanyService.store(data,_image).then((value) => {
-                        _updateCompanies(),
-                        Navigator.pop(context),
-                      });
+                      return Text('Unknown error');
                     }
+                  },
+                ),
+                FutureBuilder<List<District>>(
+                  future: districts,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasData) {
+                      final finalData = snapshot.data!;
+                      return DropdownButton<int>(
+                        isExpanded: true,
+                        value: selectedDistrict,
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            handleDistrictChange(newValue);
+                          });
+                        },
+                        items: finalData
+                            .map(
+                              (item) => DropdownMenuItem<int>(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        ).toList(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Failed to load: ${snapshot.error}');
+                    } else {
+                      return Text('Unknown error');
+                    }
+                  },
+                ),
+                TextField(
+                  controller: neighborhoodNameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Neighborhood Name',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: remainingAddressController,
+                  decoration: const InputDecoration(
+                    hintText: 'Remaining Address',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: ()  {
+                    final name = companyNameController.text;
+                    final description = descriptionController.text;
+                    final phoneNumber = phoneNumberController.text;
+                    final neighborhoodName = neighborhoodNameController.text;
+                    final remainingAddress = remainingAddressController.text;
 
-                  }
-                },
-                child: Text(isUpdate ? 'Update' : 'Save'),
-              ),
-              const SizedBox(height: 40,),
-            ],
+                    if (name.isNotEmpty && description.isNotEmpty && phoneNumber.isNotEmpty && selectedCity != null && selectedDistrict != null  && neighborhoodName.isNotEmpty && remainingAddress.isNotEmpty) {
+                      final data = {
+                        "name": name,
+                        "description": description,
+                        "phone_number": phoneNumber,
+                        "country_id": Config.TurkeyId.toString(),
+                        "city_id": selectedCity.toString(),
+                        "district_id": selectedDistrict.toString(),
+                        "neighborhood_name": neighborhoodName,
+                        "remaining_address": remainingAddress,
+                      };
+
+
+                      if (isUpdate) {
+                        _userCompanyService.update(company!.id, data,_image).then((value) => {
+                          _updateCompanies(),
+                          Navigator.pop(context),
+                        });
+                      } else {
+                        _userCompanyService.store(data,_image).then((value) => {
+                          _updateCompanies(),
+                          Navigator.pop(context),
+                        });
+                      }
+
+                    }
+                  },
+                  child: Text(isUpdate ? 'Update' : 'Save'),
+                ),
+                const SizedBox(height: 40,),
+              ],
+            ),
           ),
         );
 

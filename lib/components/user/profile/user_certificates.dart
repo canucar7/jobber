@@ -139,74 +139,81 @@ class _UserCertificatesState extends State<UserCertificates> {
       institutionNameController.text = certificate.institution;
     }
 
-    showModalBottomSheet(context: context, builder: (BuildContext context) {
-        return StatefulBuilder(builder: (context, setState) {
-          return Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: certificateNameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Certificate Name',
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: (
+            Container(
+              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: certificateNameController,
+                    decoration: const InputDecoration(
+                      hintText: 'Certificate Name',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: institutionNameController,
-                  decoration: const InputDecoration(
-                    hintText: 'Institution Name',
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: institutionNameController,
+                    decoration: const InputDecoration(
+                      hintText: 'Institution Name',
+                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-                DateTimePicker(
-                  type: DateTimePickerType.date,
-                  initialValue: dateString,
-                  firstDate: DateTime(2000),
-                  lastDate: DateTime(2100),
-                  dateLabelText: 'Select Date',
-                  onChanged: (val) {
-                    dateString = val;
-                  },
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    final name = certificateNameController.text;
-                    final institution = institutionNameController.text;
-                    final date = dateString;
+                  const SizedBox(height: 16),
+                  DateTimePicker(
+                    type: DateTimePickerType.date,
+                    initialValue: dateString,
+                    firstDate: DateTime(2000),
+                    lastDate: DateTime(2100),
+                    dateLabelText: 'Select Date',
+                    onChanged: (val) {
+                      dateString = val;
+                    },
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      final name = certificateNameController.text;
+                      final institution = institutionNameController.text;
+                      final date = dateString;
 
-                    if (name.isNotEmpty && institution.isNotEmpty) {
-                      final infoCertificate = {
-                        "name": name,
-                        "institution": institution,
-                        "issue_date": date,
-                      };
-                      if (isUpdate) {
-                        _userCertificatesService.update(certificate!.id, infoCertificate).then((value) => {
-                          _updateCertificates(),
-                          Navigator.pop(context),
-                      });
-                      } else {
-                        _userCertificatesService.store(infoCertificate).then((value) => {
-                          _updateCertificates(),
-                          Navigator.pop(context),
-                        });
+                      if (name.isNotEmpty && institution.isNotEmpty) {
+                        final infoCertificate = {
+                          "name": name,
+                          "institution": institution,
+                          "issue_date": date,
+                        };
+                        if (isUpdate) {
+                          _userCertificatesService.update(certificate!.id, infoCertificate).then((value) => {
+                            _updateCertificates(),
+                            Navigator.pop(context),
+                          });
+                        } else {
+                          _userCertificatesService.store(infoCertificate).then((value) => {
+                            _updateCertificates(),
+                            Navigator.pop(context),
+                          });
+                        }
                       }
-
-                    }
-                  },
-                  child: Text(isUpdate ? 'Update' : 'Save'),
-                ),
-                const SizedBox(height: 40,),
-              ],
-            ),
-          );
-
-        });
+                    },
+                    child: Text(isUpdate ? 'Update' : 'Save'),
+                  ),
+                  const SizedBox(height: 40,),
+                ],
+              ),
+            )
+          ),
+        );
       },
     );
+
   }
 
   void _showDeleteConfirmationDialog(UserCertificate certificate) {
