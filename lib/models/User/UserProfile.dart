@@ -1,6 +1,7 @@
-import 'package:jobfinder/models/Advertisement/Advertisement.dart';
+import 'package:jobfinder/models/Advertisement/AdvertisementInformation.dart';
+import 'package:jobfinder/models/CompanyInformation.dart';
 import 'package:jobfinder/models/User/UserAddress.dart';
-import 'package:jobfinder/models/User/UserCompany.dart';
+import 'package:jobfinder/models/User/UserCertificate.dart';
 import 'package:jobfinder/models/User/UserForeignLanguage.dart';
 
 class UserProfile {
@@ -11,9 +12,10 @@ class UserProfile {
   DateTime createdAt;
   DateTime updatedAt;
   List<UserAddress> addresses;
-  List<UserCompany> companies;
+  List<CompanyInformation> companies;
   List<UserForeignLanguage> foreignLanguages;
-  List<Advertisement> advertisements;
+  List<AdvertisementInformation> advertisements;
+  List<UserCertificate> certificates;
 
   UserProfile({
     required this.id,
@@ -26,6 +28,7 @@ class UserProfile {
     required this.companies,
     required this.foreignLanguages,
     required this.advertisements,
+    required this.certificates,
   });
 
   UserProfile.fromJson(Map<String, dynamic> json) :
@@ -40,17 +43,22 @@ class UserProfile {
       addresses= List<UserAddress>.from(
         json['addresses'].map((addressJson) => UserAddress.fromJson(addressJson)),
       ),
-      companies= List<UserCompany>.from(
-        json['companies'].map((companyJson) => UserCompany.fromJson(companyJson)),
+      companies= List<CompanyInformation>.from(
+        json['companies'].map((companyJson) => CompanyInformation.fromJson(companyJson)),
       ),
       foreignLanguages= List<UserForeignLanguage>.from(
         json['foreign_languages']
             .map((languageJson) => UserForeignLanguage.fromJson(languageJson)),
       ),
-      advertisements= List<Advertisement>.from(
+      advertisements= List<AdvertisementInformation>.from(
         json['advertisements']
-            .map((adJson) => Advertisement.fromJson(adJson)),
+            .map((adJson) => AdvertisementInformation.fromJson(adJson)),
+      ),
+      certificates= List<UserCertificate>.from(
+        json['certificates']
+            .map((adJson) => UserCertificate.fromJson(adJson)),
       );
+
 
 
 }

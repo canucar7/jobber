@@ -99,6 +99,7 @@ class _UserCompaniesState extends State<UserCompanies> {
                         onPressed: (){
                           _showModal(false);
                         },
+                        style: ElevatedButton.styleFrom(backgroundColor: appColor),
                       ),
                     ),
                   ],
@@ -128,13 +129,13 @@ class _UserCompaniesState extends State<UserCompanies> {
                       onTap: () {
                         _showModal(true, company);
                       },
-                      child: Icon(Icons.edit_calendar_outlined),
+                      child: Icon(Icons.edit_calendar_outlined,color: appColor),
                     ),
                     GestureDetector(
                       onTap: () {
                         _showDeleteConfirmationDialog(company);
                       },
-                      child: Icon(Icons.delete),
+                      child: Icon(Icons.delete,color: appColor),
                     ),
                   ],
                 ),

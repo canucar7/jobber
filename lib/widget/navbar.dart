@@ -12,6 +12,7 @@ import 'package:jobfinder/pages/notification.dart';
 import 'package:jobfinder/pages/post/create_post.dart';
 import 'package:jobfinder/pages/post/my_posts.dart';
 import 'package:jobfinder/pages/user/profile.dart';
+import 'package:jobfinder/pages/user/user_profile.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 
 import 'package:jobfinder/services/Auth/AuthService.dart';
@@ -118,16 +119,8 @@ class NavBar extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const Profile()));
             },
           ),
-          /*ListTile(
-            leading: const Icon(Icons.inventory_outlined),
-            title: const Text('Invite Friend'),
-            onTap: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const InviteFriend()));
-            },
-          ),
+
+          /*
           ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Notification'),

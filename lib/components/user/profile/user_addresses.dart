@@ -82,10 +82,11 @@ class _UserAddressesState extends State<UserAddresses> {
                   children: [
                     Expanded(
                       child: ElevatedButton(
-                        child: Text('Add'),
+                        child: Text('Add', ),
                         onPressed: (){
                           _showModal(false);
                         },
+                        style: ElevatedButton.styleFrom(backgroundColor: appColor),
                       ),
                     ),
                   ],
@@ -115,13 +116,13 @@ class _UserAddressesState extends State<UserAddresses> {
                       onTap: () {
                         _showModal(true, address);
                       },
-                      child: Icon(Icons.edit_calendar_outlined),
+                      child: Icon(Icons.edit_calendar_outlined,color: appColor,),
                     ),
                     GestureDetector(
                       onTap: () {
                         _showDeleteConfirmationDialog(address);
                       },
-                      child: Icon(Icons.delete),
+                      child: Icon(Icons.delete,color: appColor),
                     ),
                   ],
                 ),

@@ -24,8 +24,8 @@ class UserForeignLanguage {
         userId = json['user_id'],
         language = int.tryParse(json['language'].toString()),
         level =  int.tryParse(json['level'].toString()),
-        languageName = json['languageName'],
-        languageLevel = json['languageLevel'],
+        languageName = json['languageName'] ?? '',
+        languageLevel = json['languageLevel'] ?? '',
         createdAt = json['created_at'],
         updatedAt = json['updated_at'];
 }

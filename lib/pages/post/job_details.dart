@@ -10,6 +10,7 @@ import 'package:jobfinder/pages/company_detail.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
+import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:provider/provider.dart';
 import '../../components/styles.dart';
 
@@ -126,19 +127,7 @@ class _JobDetailsState extends State<JobDetails> {
           child: Column(
             children: [
               _buildJobName(),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _buildSelect('Description', 1),
-                  advertisement?.company != null ? _buildSelect('Company', 2) : Container(),
-                ],
-              ),
-              Column(children: [
-                if (selectID == 1)
-                  _buildDescription()
-                else if (selectID == 2)
-                  advertisement?.company != null ? _buildCompany() : Container()
-              ]),
+              _buildDescription(),
             ],
           ));
     }
@@ -183,57 +172,50 @@ class _JobDetailsState extends State<JobDetails> {
               ],
             ),
             const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: Icon(
-                      advertisement?.company != null ? Icons.maps_home_work_outlined : Icons.person,
-                      size: 40,
-                      color: appColor,
-                    )),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      blackHeadingSmall(advertisement?.company != null ? advertisement?.company?.name : advertisement?.user.name,),
-                    ],
+            Column(children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: Icon(
+                        advertisement?.company != null ? Icons.maps_home_work_outlined : Icons.person,
+                        size: 40,
+                        color: appColor,
+                      )),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        blackHeadingSmall(advertisement?.company != null ? advertisement?.company?.name : advertisement?.user.name,),
+                      ],
+                    ),
                   ),
-                ),
-                greyTextSmall(advertisement?.publishedDate ?? ''),
+                  greyTextSmall(advertisement?.publishedDate?.split(" ").first.toString() ?? ''),
+                  SizedBox(height: 20,),
+                ],
+              ),
+              SizedBox(height: 10,),
+              Row(children: [
+                MyElevatedButton(
+                    onPressed: ()  {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CompanyDetail(companyId: advertisement!.company!.id)));
+                    },
+                    text: btnText('See Details'),
+                    height: 28,
+                    width: 100)
               ],
-            ),
+              mainAxisAlignment: MainAxisAlignment.start,)
+
+            ],
+           ),
           ],
         ));
   }
 
-  Widget _buildSelect(title, id) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          selectID = id;
-        });
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 24),
-        margin: const EdgeInsets.symmetric(vertical: 4),
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: <Color>[appColor2, appColor]),
-          color: selectID == id ? appColor : Colors.transparent,
-          borderRadius: const BorderRadius.all(Radius.circular(50.0)),
-        ),
-        child: Text(title,
-            style: TextStyle(
-                fontFamily: 'medium',
-                fontSize: 14,
-                color: selectID == id ? Colors.white : Colors.black54)),
-      ),
-    );
-  }
 
   Widget _buildDescription() {
     return Column(
@@ -394,52 +376,4 @@ class _JobDetailsState extends State<JobDetails> {
     );
   }
 
-  Widget _buildCompany() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.only(top: 16, left: 16),
-          child: blackHeading('Qualifications'.toUpperCase()),
-        ),
-        Container(
-            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 0),
-            margin: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 20.0,
-                ),
-              ],
-              borderRadius: BorderRadius.all(Radius.circular(6.0)),
-            ),
-            child: Column(
-              children: [
-                ListTile(
-                  leading: const SizedBox(
-                      height: double.infinity,
-                      child: Icon(Icons.circle, size: 14)),
-                  visualDensity:
-                      const VisualDensity(horizontal: 0, vertical: -4),
-                  minLeadingWidth: 0,
-                  title: greyText(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco'),
-                ),
-                ListTile(
-                  leading: const SizedBox(
-                      height: double.infinity,
-                      child: Icon(Icons.circle, size: 14)),
-                  visualDensity:
-                      const VisualDensity(horizontal: 0, vertical: -4),
-                  minLeadingWidth: 0,
-                  title: greyText(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco'),
-                ),
-              ],
-            )),
-      ],
-    );
-  }
 }

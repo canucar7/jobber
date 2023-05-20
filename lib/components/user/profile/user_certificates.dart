@@ -76,6 +76,7 @@ class _UserCertificatesState extends State<UserCertificates> {
                         onPressed: (){
                           _showModal(false);
                         },
+                        style: ElevatedButton.styleFrom(backgroundColor: appColor),
                       ),
                     ),
                   ],
@@ -105,13 +106,13 @@ class _UserCertificatesState extends State<UserCertificates> {
                       onTap: () {
                         _showModal(true, certificate);
                       },
-                      child: Icon(Icons.edit_calendar_outlined),
+                      child: Icon(Icons.edit_calendar_outlined,color: appColor),
                     ),
                     GestureDetector(
                       onTap: () {
                         _showDeleteConfirmationDialog(certificate);
                       },
-                      child: Icon(Icons.delete),
+                      child: Icon(Icons.delete,color: appColor),
                     ),
                   ],
                 ),

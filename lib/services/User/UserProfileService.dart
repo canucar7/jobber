@@ -19,6 +19,7 @@ class UserProfileService extends AbstractService {
 
     if (response.statusCode == 200) {
       final jsonData = json.decode(response.body);
+      print(response.body);
 
       return UserProfile.fromJson(jsonData['data']);
     } else {

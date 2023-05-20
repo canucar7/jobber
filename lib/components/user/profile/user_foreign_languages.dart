@@ -77,6 +77,7 @@ class _UserForeignLanguagesState extends State<UserForeignLanguages> {
                         onPressed: (){
                           _showModal(false);
                         },
+                        style: ElevatedButton.styleFrom(backgroundColor: appColor),
                       ),
                     ),
                   ],
@@ -106,13 +107,13 @@ class _UserForeignLanguagesState extends State<UserForeignLanguages> {
                       onTap: () {
                         _showModal(true, foreignLanguage);
                       },
-                      child: Icon(Icons.edit_calendar_outlined),
+                      child: Icon(Icons.edit_calendar_outlined,color: appColor),
                     ),
                     GestureDetector(
                       onTap: () {
                         _showDeleteConfirmationDialog(foreignLanguage);
                       },
-                      child: Icon(Icons.delete),
+                      child: Icon(Icons.delete,color: appColor),
                     ),
                   ],
                 ),
