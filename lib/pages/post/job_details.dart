@@ -8,6 +8,7 @@ import 'package:jobfinder/models/Advertisement/Advertisement.dart';
 import 'package:jobfinder/models/User/UserAddress.dart';
 import 'package:jobfinder/pages/company_detail.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
+import 'package:jobfinder/pages/user/user_profile.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
@@ -199,10 +200,18 @@ class _JobDetailsState extends State<JobDetails> {
               Row(children: [
                 MyElevatedButton(
                     onPressed: ()  {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => CompanyDetail(companyId: advertisement!.company!.id)));
+                      if(advertisement?.company != null) {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CompanyDetail(companyId: advertisement!.company!.id)));
+                      }else{
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => UserProfiles(profileId: advertisement!.user.id,)));
+                      }
+
                     },
                     text: btnText('See Details'),
                     height: 28,

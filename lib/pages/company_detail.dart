@@ -254,10 +254,9 @@ class _CompanyDetailState extends State<CompanyDetail> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildOverviewList(Icons.location_on_outlined, 'Country',
-                      company!.address.countryId.toString()),
+                      'Turkey'),
                   _buildOverviewList(Icons.location_on_outlined, 'Location',
-                      company!.address.neighborhoodName + " " + (company!.address.remainingAddress ?? '')+
-                          "\n"+company!.address.districtId.toString() + "/" + company!.address.cityId.toString() ),
+                      company!.address.fullAddress),
                   _buildOverviewList(
                       Icons.call_outlined, 'Phone Number', company!.phoneNumber.toString()),
                   _buildOverviewList(Icons.mail_outline, 'Email Address',
