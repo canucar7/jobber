@@ -78,7 +78,7 @@ class _RegisterState extends State<Register> {
           children: [
             logoImg(),
             const Text(
-              'Welcome to MyJob',
+              'Welcome to Jobber',
               style: TextStyle(
                   color: Colors.white, fontSize: 26, fontFamily: 'medium'),
             ),

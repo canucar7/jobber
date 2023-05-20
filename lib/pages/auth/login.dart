@@ -84,7 +84,7 @@ class _LoginState extends State<Login> {
           children: [
             logoImg(),
             const Text(
-              'Welcome Back!',
+              'Jobber',
               style: TextStyle(
                   color: Colors.white, fontSize: 26, fontFamily: 'medium'),
             ),
@@ -155,22 +155,7 @@ class _LoginState extends State<Login> {
 
                   ),
                   SizedBox(height: 15,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      MyTextButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) =>
-                                        const ForgotPassword()));
-                          },
-                          text: 'Forgot Password',
-                          colors: appColor),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
+
                 ],
               ),
             ),
