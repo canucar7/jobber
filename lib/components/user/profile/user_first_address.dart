@@ -109,7 +109,8 @@ class _UserFirstAddressesState extends State<UserFirstAddresses> {
                     return CircularProgressIndicator();
                   } else if (snapshot.hasData) {
                     final finalData = snapshot.data!;
-                    return DropdownButton<int>(
+                    return DropdownButtonFormField<int>(
+                      decoration: InputDecoration(labelText: 'Select City'),
                       isExpanded: true,
                       value: selectedCity,
                       onChanged: (int? newValue) {
@@ -139,7 +140,8 @@ class _UserFirstAddressesState extends State<UserFirstAddresses> {
                     return CircularProgressIndicator();
                   } else if (snapshot.hasData) {
                     final finalData = snapshot.data!;
-                    return DropdownButton<int>(
+                    return DropdownButtonFormField<int>(
+                      decoration: InputDecoration(labelText: 'Select District'),
                       isExpanded: true,
                       value: selectedDistrict,
                       onChanged: (int? newValue) {
@@ -197,6 +199,7 @@ class _UserFirstAddressesState extends State<UserFirstAddresses> {
                   }
                 },
                 child: Text('Save'),
+                style: ElevatedButton.styleFrom(backgroundColor: appColor),
               ),
             ],
           ),

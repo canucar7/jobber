@@ -180,7 +180,8 @@ class _UserAddressesState extends State<UserAddresses> {
                           return CircularProgressIndicator();
                         } else if (snapshot.hasData) {
                           final finalData = snapshot.data!;
-                          return DropdownButton<int>(
+                          return DropdownButtonFormField<int>(
+                            decoration: InputDecoration(labelText: 'Select City'),
                             isExpanded: true,
                             value: selectedCity,
                             onChanged: (int? newValue) {
@@ -206,6 +207,7 @@ class _UserAddressesState extends State<UserAddresses> {
                         }
                       },
                     ),
+                    SizedBox(height: 8,),
                     FutureBuilder<List<District>>(
                       future: districts,
                       builder: (context, snapshot) {
@@ -213,7 +215,8 @@ class _UserAddressesState extends State<UserAddresses> {
                           return CircularProgressIndicator();
                         } else if (snapshot.hasData) {
                           final finalData = snapshot.data!;
-                          return DropdownButton<int>(
+                          return DropdownButtonFormField<int>(
+                            decoration: InputDecoration(labelText: 'Select District'),
                             isExpanded: true,
                             value: selectedDistrict,
                             onChanged: (int? newValue) {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:jobfinder/components/styles.dart';
 import 'package:jobfinder/pages/address_add.dart';
 import 'package:jobfinder/pages/applied_jobs.dart';
 import 'package:jobfinder/pages/bookmark.dart';
@@ -43,8 +44,15 @@ class NavBar extends StatelessWidget {
                 'Jobber',
                 style: TextStyle(
                   color: Colors.white,
-                  fontSize: 30,
+                  fontSize: 40,
                 ),
+            ),
+            currentAccountPictureSize: const Size.square(125.0),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: <Color>[appColor2, appColor]),
             ),
           ),
           ListTile(
@@ -53,6 +61,14 @@ class NavBar extends StatelessWidget {
             onTap: () {
               Navigator.push(context,
                   MaterialPageRoute(builder: (context) => const Home()));
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('View Profile'),
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => const Profile()));
             },
           ),
           ListTile(
@@ -88,7 +104,7 @@ class NavBar extends StatelessWidget {
             },
           ),*/
           ListTile(
-            leading: const Icon(Icons.done_all),
+            leading: const Icon(Icons.local_offer),
             title: const Text('My Posts'),
             onTap: () {
               Navigator.push(context,
@@ -111,14 +127,7 @@ class NavBar extends StatelessWidget {
                   MaterialPageRoute(builder: (context) => const Inbox()));
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('View Profile'),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const Profile()));
-            },
-          ),
+
 
           /*
           ListTile(

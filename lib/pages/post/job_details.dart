@@ -128,12 +128,25 @@ class _JobDetailsState extends State<JobDetails> {
           child: Column(
             children: [
               _buildJobName(),
+              SizedBox(height:8),
+              applyButton(),
               _buildDescription(),
             ],
           ));
     }
 
   }
+
+  Widget applyButton(){
+    return MyElevatedButton(
+        onPressed: ()  {},
+        text: Text('Apply',
+          style:TextStyle(
+              fontSize: 19, fontFamily: 'medium', color: Colors.white) ,),
+        height: 40,
+        width: 300);
+  }
+
 
   Widget _buildJobName() {
     return Container(

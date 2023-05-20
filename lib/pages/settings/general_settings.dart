@@ -68,9 +68,6 @@ class _GeneralSettingsState extends State<GeneralSettings> {
           title: const Text('GeneralSettings'),
           centerTitle: true,
           titleSpacing: 0,
-          actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-          ],
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(

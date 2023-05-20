@@ -70,9 +70,6 @@ class _CreatePostState extends State<CreatePost> {
           title: const Text('Create Post'),
           centerTitle: true,
           titleSpacing: 0,
-          actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-          ],
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -185,20 +182,7 @@ class _CreatePostState extends State<CreatePost> {
               ),
             ): SizedBox(height: 1,),
             _character2 == SingingCharacter.var3 ?
-            Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black12,
-                      blurRadius: 20.0,
-                    ),
-                  ],
-                  borderRadius: BorderRadius.all(Radius.circular(6.0)),
-                ),
+            Card(
                 child: Column(
                   children: [
                     FutureBuilder<List<UserCompany>>(
@@ -216,7 +200,8 @@ class _CreatePostState extends State<CreatePost> {
                             );
                           }
 
-                          return DropdownButton(
+                          return DropdownButtonFormField(
+                            decoration: InputDecoration(labelText: 'Select Company'),
                             value: selectedCompany,
                             items: items,
                             onChanged: (value) {
@@ -233,7 +218,7 @@ class _CreatePostState extends State<CreatePost> {
                         return CircularProgressIndicator();
                       },
                     ),
-                    const SizedBox(height: 10),
+
                   ],
                 )): SizedBox(height: 1,),
 
@@ -270,7 +255,8 @@ class _CreatePostState extends State<CreatePost> {
                             );
                           }
 
-                          return DropdownButton(
+                          return DropdownButtonFormField(
+                            decoration: InputDecoration(labelText: 'Select Job'),
                             value: selectedJob,
                             items: items,
                             onChanged: ( value) {
@@ -346,7 +332,7 @@ class _CreatePostState extends State<CreatePost> {
               child:
               TextField(
                 controller:descriptionNameController,
-              ),
+                maxLines: 5,),
             ),
 
 
@@ -393,7 +379,8 @@ class _CreatePostState extends State<CreatePost> {
                             );
                           }
 
-                          return DropdownButton(
+                          return DropdownButtonFormField(
+                            decoration: InputDecoration(labelText: 'Select Address'),
                             value: selectedAddress,
                             items: items,
                             onChanged: (value) {
@@ -485,6 +472,7 @@ class _CreatePostState extends State<CreatePost> {
                   }
                 },
                 child: Text('Publish'),
+                style: ElevatedButton.styleFrom(backgroundColor: appColor),
               ),
             )
           ],
