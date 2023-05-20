@@ -48,7 +48,7 @@ class AuthService{
     }else{
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Giriş bilgileri hatalıdır'),
+            content: Text('Login information is not correct!'),
             backgroundColor: Colors.red,
             duration: Duration(seconds: 2),
           )

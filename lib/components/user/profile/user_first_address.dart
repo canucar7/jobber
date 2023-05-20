@@ -5,6 +5,7 @@ import 'package:jobfinder/models/Location/City.dart';
 import 'package:jobfinder/models/Location/District.dart';
 import 'package:jobfinder/models/User/UserAddress.dart';
 import 'package:jobfinder/pages/filter.dart';
+import 'package:jobfinder/pages/home.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
 import 'package:jobfinder/services/Location/CityService.dart';
@@ -74,7 +75,6 @@ class _UserFirstAddressesState extends State<UserFirstAddresses> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      drawer: const NavBar(),
       appBar: AppBar(
         iconTheme: const IconThemeData(color: Colors.white),
         title: const Text('First Address'),
@@ -189,16 +189,15 @@ class _UserFirstAddressesState extends State<UserFirstAddresses> {
                       "neighborhood_name": neighborhoodName,
                       "remaining_address": remainingAddress,
                     };
-                    _userAddressService.store(data).then((value) => {
+                    _userAddressService.firstStore(data, context.read<UserProvider>()).then((value) => {
                       _updateaddresses(),
-                      Navigator.pop(context),
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const Home())),
                     });
                     //TODO: Buraya hata mesajı ekle
                   }
                 },
                 child: Text('Save'),
               ),
-              const SizedBox(height: 40,),
             ],
           ),
         );

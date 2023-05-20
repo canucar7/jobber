@@ -136,6 +136,7 @@ class NavBar extends StatelessWidget {
             title: const Text('Log Out'),
             onTap: () {
               _authService.logout();
+              context.read<UserProvider>().clear();
               Navigator.push(
                   context,
                   MaterialPageRoute(

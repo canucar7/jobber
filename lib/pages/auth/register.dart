@@ -185,7 +185,7 @@ class _RegisterState extends State<Register> {
                   if(value){
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Kayıt işlemi başarılı. Lütfen giriş yapınız.'),
+                          content: Text('Successfully registered. Please login.'),
                           backgroundColor: Colors.green,
                           duration: Duration(seconds: 5),
                         )
@@ -195,7 +195,7 @@ class _RegisterState extends State<Register> {
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
-                          content: Text('Kayıt işlemi başarısız.'),
+                          content: Text('Failed to register.'),
                           backgroundColor: Colors.red,
                           duration: Duration(seconds: 2),
                         )

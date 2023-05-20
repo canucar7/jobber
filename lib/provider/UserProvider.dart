@@ -19,4 +19,10 @@ class UserProvider extends ChangeNotifier {
     _address = value;
     notifyListeners();
   }
+  void clear() {
+    _auth = null;
+    _address = null;
+    notifyListeners();
+  }
+
 }
