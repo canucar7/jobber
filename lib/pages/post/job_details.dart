@@ -5,11 +5,13 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:jobfinder/enums.dart';
 import 'package:jobfinder/helpers/map_icon.dart';
 import 'package:jobfinder/models/Advertisement/Advertisement.dart';
+import 'package:jobfinder/models/Advertisement/AdvertisementApplication.dart';
 import 'package:jobfinder/models/User/UserAddress.dart';
 import 'package:jobfinder/pages/company_detail.dart';
 import 'package:jobfinder/pages/settings/general_settings.dart';
 import 'package:jobfinder/pages/user/user_profile.dart';
 import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/Advertisement/AdvertisementApplicationService.dart';
 import 'package:jobfinder/services/Advertisement/AdvertisementService.dart';
 import 'package:jobfinder/widget/elevated_button.dart';
 import 'package:provider/provider.dart';
@@ -33,8 +35,10 @@ class _JobDetailsState extends State<JobDetails> {
   late int _userId;
   late UserAddress _userAddress;
   late AdvertisementService _advertisementService;
+  late AdvertisementApplicationService _advertisementApplicationService;
 
   late Advertisement? advertisement = null;
+  late AdvertisementApplication? advertisementApplication = null;
 
   late BitmapDescriptorSingleton _mapAttributes;
   final Set<Marker> _markers = {};
@@ -46,7 +50,9 @@ class _JobDetailsState extends State<JobDetails> {
     _userId = context.read<UserProvider>().auth!.user.id;
     _userAddress = context.read<UserProvider>().address!;
     _advertisementService = AdvertisementService(_authToken, _userId);
+    _advertisementApplicationService = AdvertisementApplicationService(_authToken,_userId);
     getAdvertisementDetails();
+    getAdvertisementApplicationDetails();
     getMapAttributes();
   }
 
@@ -54,6 +60,14 @@ class _JobDetailsState extends State<JobDetails> {
     Advertisement fetchAdvertisement = await _advertisementService.show(widget.advertisementId);
     setState(() {
       advertisement = fetchAdvertisement;
+    });
+  }
+
+  void getAdvertisementApplicationDetails() async {
+    AdvertisementApplication fetchAdvertisement = await _advertisementApplicationService.show(widget.advertisementId);
+    setState(() {
+      advertisementApplication = fetchAdvertisement;
+      print(fetchAdvertisement);
     });
   }
 
@@ -139,8 +153,14 @@ class _JobDetailsState extends State<JobDetails> {
 
   Widget applyButton(){
     return MyElevatedButton(
-        onPressed: ()  {},
-        text: Text('Apply',
+        onPressed: ()  {
+          if(advertisementApplication == null){
+            _advertisementApplicationService.store(widget.advertisementId).then((value) => getAdvertisementApplicationDetails());
+          }
+        },
+        text: advertisementApplication !=null ? Text('Successfully Applied',
+          style:TextStyle(
+              fontSize: 19, fontFamily: 'medium', color: Colors.white) ,) : Text('Apply',
           style:TextStyle(
               fontSize: 19, fontFamily: 'medium', color: Colors.white) ,),
         height: 40,

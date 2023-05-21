@@ -41,4 +41,18 @@ class AdvertisementApplicationService extends AbstractService {
     }
   }
 
+  Future<AdvertisementApplication> show(int advertisementId) async {
+    String requestUrl = apiUrl + "/$advertisementId";
+
+    final response = await http.get(Uri.parse(requestUrl),headers: headers);
+
+    if (response.statusCode == 200) {
+      final jsonData = json.decode(response.body);
+
+      return AdvertisementApplication.fromJson(jsonData['data']);
+    } else {
+      throw Exception('Failed to load advertisement applications');
+    }
+  }
+
 }
