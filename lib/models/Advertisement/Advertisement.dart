@@ -92,7 +92,7 @@ class Company {
   int userId;
   String name;
   String description;
-  String coverImageUrl;
+  String? coverImageUrl;
   int phoneNumber;
   int status;
   DateTime? deletedAt;
@@ -105,7 +105,7 @@ class Company {
     required this.userId,
     required this.name,
     required this.description,
-    required this.coverImageUrl,
+    this.coverImageUrl,
     required this.phoneNumber,
     required this.status,
     this.deletedAt,
@@ -119,7 +119,7 @@ class Company {
       userId= json['user_id'],
       name= json['name'],
       description= json['description'],
-      coverImageUrl= json['cover_image_url'],
+      coverImageUrl= json['cover_image_url'] != null ? json['cover_image_url'].toString() : null,
       phoneNumber= json['phone_number'],
       status= json['status'],
       deletedAt= json['deleted_at'] != null ? DateTime.parse(json['deleted_at']) : null,
