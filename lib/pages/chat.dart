@@ -1,58 +1,94 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
 import 'package:flutter/material.dart';
+import 'package:jobfinder/helpers/date_helper.dart';
+import 'package:jobfinder/models/Message/Message.dart';
+import 'package:jobfinder/provider/UserProvider.dart';
+import 'package:jobfinder/services/Message/MessageService.dart';
+import 'package:provider/provider.dart';
 import '../components/styles.dart';
 
 class Chat extends StatefulWidget {
   static const String id = 'Chat';
+  final int conversationId;
+  final int oppositeUserId;
+  final int advertisementId;
 
-  const Chat({Key? key}) : super(key: key);
+  const Chat({
+    Key? key,
+    required this.conversationId,
+    required this.oppositeUserId,
+    required this.advertisementId
+  }) : super(key: key);
 
   @override
   _ChatState createState() => _ChatState();
 }
 
 class _ChatState extends State<Chat> {
+  final ScrollController _scrollController = ScrollController();
+  TextEditingController _messageController = TextEditingController();
+
+  late String _authToken;
+  late int _userId;
+  late MessageService _messageService;
+
+  late List<Message>? messages = null;
+  String messageTitle = '';
+
   @override
   void initState() {
     super.initState();
+    _authToken = context.read<UserProvider>().auth!.accessToken;
+    _userId = context.read<UserProvider>().auth!.user.id;
+    _messageService = MessageService(_authToken, _userId);
+    getMessages();
   }
 
-  List<Item> messages = <Item>[
-    const Item('left',
-        'long established fact that a reader will be distracted by the readable content of a page when looking at its layout. '),
-    const Item('right',
-        'The point of using  a more-or-less normal distribution of letters, as'),
-    const Item('left', 'Lorem Ipsum is that it has'),
-    const Item('right',
-        'The point of using  a more-or-less normal distribution of letters'),
-    const Item(
-        'left', 'ablished fact that a reader will be distracted by the re'),
-    const Item('right', 'done'),
-    const Item('right',
-        'The point of using  a more-or-less normal distribution of letters'),
-    const Item(
-        'left', 'ablished fact that a reader will be distracted by the re'),
-    const Item('right', 'done'),
-  ];
+  void getMessages() async {
+    List<Message> fetchMessages = await _messageService.show(widget.conversationId);
+    setState(() {
+      messages = fetchMessages;
+      try {
+        messageTitle = messages!.firstWhere((message) => message.userId == widget.oppositeUserId).user.name;
+      } catch (e) {
+        messageTitle = "";
+      }
+    });
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      scrollToBottom();
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void scrollToBottom() {
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      _scrollController.addListener(() {
+        if (_scrollController.offset >=
+            _scrollController.position.maxScrollExtent &&
+            !_scrollController.position.outOfRange) {
+        }
+      });
+
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
           iconTheme: const IconThemeData(color: Colors.white),
-          title: const Text('Willie Velasco'),
+          // title: messages == null ? Text('') : Text(messages!.firstWhere((message) => message.userId == widget.oppositeUserId) != null ? messages!.firstWhere((message) => message.userId == widget.oppositeUserId).user.name.toUpperCase() : ''),
+          title:  Text(messageTitle),
           titleSpacing: 0,
-          actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.search)),
-            IconButton(onPressed: () {}, icon: const Icon(Icons.more_vert)),
-          ],
           flexibleSpace: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
@@ -64,130 +100,127 @@ class _ChatState extends State<Chat> {
           elevation: 0,
         ),
         bottomNavigationBar: _buildBottom(),
-        body: _buildBody());
+        body: messages == null ? Center(child: CircularProgressIndicator()) : _buildBody());
   }
 
   Widget _buildBody() {
     return SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: messages.map((Item msg) {
-            return msg.side == 'left'
-                ? Container(
-                    margin: const EdgeInsets.only(bottom: 16),
-                    width: MediaQuery.of(context).size.width - 120,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        const CircleAvatar(
-                          backgroundColor: appColor,
-                          child: Icon(
-                            Icons.support_agent,
-                            size: 14,
-                            color: Colors.white,
+      controller: _scrollController,
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: messages!.map<Widget>((Message msg) {
+          return msg.userId != _userId
+              ? Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            width: MediaQuery.of(context).size.width - 120,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: <Widget>[
+                const CircleAvatar(
+                  backgroundColor: appColor,
+                  child: Icon(
+                    Icons.person,
+                    size: 14,
+                    color: Colors.white,
+                  ),
+                  radius: 12,
+                ),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(left: 10),
+                        padding: const EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                          color: backgroundColor,
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(16),
+                            topLeft: Radius.circular(16),
+                            bottomRight: Radius.circular(16),
                           ),
-                          radius: 12,
                         ),
+                        child: Text(
+                          msg.content,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.only(left: 16, top: 6),
+                        child: smallText('${DateTime.parse(msg.createdAt).day} ${DateHelper.getMonthName(DateTime.parse(msg.createdAt).month)} ${DateHelper.formatHourMinute(DateTime.parse(msg.createdAt).hour, DateTime.parse(msg.createdAt).minute)}'),
+                      )
+                    ],
+                  ),
+                )
+              ],
+            ),
+          )
+              : Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: <Widget>[
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                width: MediaQuery.of(context).size.width - 120,
+                child: Column(
+                  children: [
+                    Row(
+                      children: <Widget>[
                         Flexible(
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.end,
                             children: [
                               Container(
-                                margin: const EdgeInsets.only(left: 10),
+                                margin: const EdgeInsets.only(right: 10),
                                 padding: const EdgeInsets.all(16),
                                 decoration: const BoxDecoration(
-                                    color: backgroundColor,
-                                    borderRadius: BorderRadius.only(
-                                      topRight: Radius.circular(16),
-                                      topLeft: Radius.circular(16),
-                                      bottomRight: Radius.circular(16),
-                                    )),
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: <Color>[appColor2, appColor],
+                                  ),
+                                  borderRadius: BorderRadius.only(
+                                    topRight: Radius.circular(16),
+                                    topLeft: Radius.circular(16),
+                                    bottomLeft: Radius.circular(16),
+                                  ),
+                                ),
                                 child: Text(
-                                  msg.msg,
-                                  style: const TextStyle(fontSize: 14),
+                                  msg.content,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
                               Container(
-                                padding:
-                                    const EdgeInsets.only(left: 16, top: 6),
-                                child: smallText('10.34pm'),
-                              )
+                                padding: const EdgeInsets.only(
+                                    right: 10, top: 6),
+                                child: Row(
+                                  mainAxisAlignment:
+                                  MainAxisAlignment.end,
+                                  children: [
+                                    smallText('${DateTime.parse(msg.createdAt).day} ${DateHelper.getMonthName(DateTime.parse(msg.createdAt).month)} ${DateHelper.formatHourMinute(DateTime.parse(msg.createdAt).hour, DateTime.parse(msg.createdAt).minute)}'),
+                                    const SizedBox(width: 4),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
-                        )
+                        ),
                       ],
                     ),
-                  )
-                : Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: <Widget>[
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        width: MediaQuery.of(context).size.width - 120,
-                        child: Column(
-                          children: [
-                            Row(
-                              children: <Widget>[
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        margin:
-                                            const EdgeInsets.only(right: 10),
-                                        padding: const EdgeInsets.all(16),
-                                        decoration: const BoxDecoration(
-                                          gradient: LinearGradient(
-                                              begin: Alignment.topCenter,
-                                              end: Alignment.bottomCenter,
-                                              colors: <Color>[
-                                                appColor2,
-                                                appColor
-                                              ]),
-                                          borderRadius: BorderRadius.only(
-                                            topRight: Radius.circular(16),
-                                            topLeft: Radius.circular(16),
-                                            bottomLeft: Radius.circular(16),
-                                          ),
-                                        ),
-                                        child: Text(
-                                          msg.msg,
-                                          style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 14),
-                                        ),
-                                      ),
-                                      Container(
-                                          padding: const EdgeInsets.only(
-                                              right: 10, top: 6),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              smallText('10.34pm'),
-                                              const SizedBox(width: 4),
-                                              const Icon(
-                                                Icons.check,
-                                                size: 16,
-                                                color: appColor,
-                                              )
-                                            ],
-                                          ))
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  );
-          }).toList(),
-        ));
+                  ],
+                ),
+              ),
+            ],
+          );
+        }).toList(),
+      ),
+    );
   }
+
 
   Widget _buildBottom() {
     return SingleChildScrollView(
@@ -210,7 +243,7 @@ class _ChatState extends State<Chat> {
                   ),
                 ),
                 child: TextField(
-                  onChanged: (String txt) {},
+                  controller: _messageController,
                   style: const TextStyle(fontSize: 18, color: Colors.black),
                   cursorColor: appColor,
                   decoration: const InputDecoration(
@@ -222,7 +255,22 @@ class _ChatState extends State<Chat> {
             ),
             const SizedBox(width: 8),
             GestureDetector(
-              onTap: () {},
+              onTap: () {
+                setState(() {
+                  messages = null;
+                });
+                FocusScope.of(context).unfocus();
+                final data = {
+                  "user1_id": _userId.toString(),
+                  "user2_id": widget.oppositeUserId.toString(),
+                  "advertisement_id": widget.advertisementId.toString(),
+                  "content": _messageController.text.toString(),
+                };
+                _messageService.store(data).then((value) => {
+                  getMessages(),
+                  _messageController.clear(),
+                });
+              },
               child: const CircleAvatar(
                 backgroundColor: appColor,
                 radius: 24,
