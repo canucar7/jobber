@@ -131,7 +131,7 @@ class _UserInformationsState extends State<UserInformations> {
                     ),
                   ],
                 ),
-                Column(
+                /*Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 20),
@@ -188,7 +188,7 @@ class _UserInformationsState extends State<UserInformations> {
                       ],
                     ),
                   ],
-                ),
+                ),*/
                 const SizedBox(height: 10),
               ],
             )
