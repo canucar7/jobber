@@ -183,17 +183,7 @@ class _CompanyDetailState extends State<CompanyDetail> {
             Positioned(
               bottom: -16,
               right: 0,
-              child: SizedBox(
-                child: MyElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => const ViewJobs()));
-                    },
-                    text: btnText('4 OPEN POSITIONS'),
-                    height: 28,
-                    width: 140),
+              child: SizedBox(height: 1,
               ),
             )
           ],
@@ -323,18 +313,6 @@ class _CompanyDetailState extends State<CompanyDetail> {
                         () => VerticalDragGestureRecognizer())),
             ),),
           const SizedBox(height: 16),
-          blackHeadingSmall('Job Vacancies'.toUpperCase()),
-          SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(vertical: 8),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                itemCount: 2,
-                physics: const ScrollPhysics(),
-                shrinkWrap: true,
-                itemBuilder: (context, i) => Column(
-                  children: [_buildJobs()],
-                ),
-              )),
         ],
       ),
     ) ;
