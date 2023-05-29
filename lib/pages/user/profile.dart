@@ -59,7 +59,7 @@ class _ProfileState extends State<Profile> {
           children: [
             UserProfileHeader(),
             const SizedBox(height: 8),
-            UserInformations(),
+            //UserInformations(),
             UserAddresses(),
             UserCompanies(),
             //UserExperiences(),
