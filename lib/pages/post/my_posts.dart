@@ -146,7 +146,7 @@ class _MyJobsState extends State<MyJobs> {
                     },
                     text: btnText('View Applications'),
                     height: 28,
-                    width: 145)
+                    width: 195)
               ],
             ),
           ],

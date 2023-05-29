@@ -318,7 +318,7 @@ class _HomeState extends State<Home> {
                 color: appColor,
               ),
               const SizedBox(height: 4),
-              boldText(e['job'].name),
+              boldText(e['job'].name.length > 12 ? e['job'].name.substring(0, 7) + '...' : e['job'].name,),
               const SizedBox(height: 4),
               greyTextSmall('('+ e['advertisement_count'].toString() +')')
             ],
@@ -358,7 +358,7 @@ class _HomeState extends State<Home> {
                 color: appColor,
               ),
               const SizedBox(height: 4),
-              boldText(e['company'].name),
+              boldText(e['company'].name.length > 10 ? e['company'].name.substring(0, 7) + '...' : e['company'].name,),
               const SizedBox(height: 4),
               greyTextSmall('('+ e['advertisement_count'].toString() +')')
             ],
