@@ -1,11 +1,4 @@
-/*
-  Authors : flutter_ninja (Flutter Ninja)
-  Website : https://codecanyon.net/user/flutter_ninja/
-  App Name : JobFinder Flutter Template
-  This App Template Source code is licensed as per the
-  terms found in the Website https://codecanyon.net/licenses/standard/
-  Copyright and Good Faith Purchasers © 2022-present flutter_ninja.
-*/
+
 import 'package:flutter/material.dart';
 import '../components/styles.dart';
 
