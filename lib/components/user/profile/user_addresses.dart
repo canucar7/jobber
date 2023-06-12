@@ -166,122 +166,125 @@ class _UserAddressesState extends State<UserAddresses> {
       selectedDistrict = address.districtId;
     }
 
-    showModalBottomSheet(context: context, builder: (BuildContext context) {
+    showModalBottomSheet(isScrollControlled: true, context: context, builder: (BuildContext context) {
       return StatefulBuilder(builder: (context, setState) {
-        return Container(
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-          margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FutureBuilder<List<City>>(
-                future: cities,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasData) {
-                    final finalData = snapshot.data!;
-                    return DropdownButtonFormField<int>(
-                      decoration: InputDecoration(labelText: 'Select City'),
-                      isExpanded: true,
-                      value: selectedCity,
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          handleCityChange(newValue);
-                        });
-                      },
-                      items: finalData
-                          .map(
-                            (item) => DropdownMenuItem<int>(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
-                      ).toList(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Failed to load: ${snapshot.error}');
-                  } else {
-                    return Text('Unknown error');
-                  }
-                },
-              ),
-              FutureBuilder<List<District>>(
-                future: districts,
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  } else if (snapshot.hasData) {
-                    final finalData = snapshot.data!;
-                    return DropdownButtonFormField<int>(
-                      decoration: InputDecoration(labelText: 'Select District'),
-                      isExpanded: true,
-                      value: selectedDistrict,
-                      onChanged: (int? newValue) {
-                        setState(() {
-                          handleDistrictChange(newValue);
-                        });
-                      },
-                      items: finalData
-                          .map(
-                            (item) => DropdownMenuItem<int>(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
-                      ).toList(),
-                    );
-                  } else if (snapshot.hasError) {
-                    return Text('Failed to load: ${snapshot.error}');
-                  } else {
-                    return Text('Unknown error');
-                  }
-                },
-              ),
-              TextField(
-                controller: neighborhoodNameController,
-                decoration: const InputDecoration(
-                  hintText: 'Neighborhood Name',
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: remainingAddressController,
-                decoration: const InputDecoration(
-                  hintText: 'Remaining Address',
-                ),
-              ),
-              const SizedBox(height: 16),
-              ElevatedButton(
-                onPressed: () {
-                  final neighborhoodName = neighborhoodNameController.text;
-                  final remainingAddress = remainingAddressController.text;
-
-                  if (selectedCity != null && selectedDistrict != null  && neighborhoodName.isNotEmpty && remainingAddress.isNotEmpty) {
-                    final data = {
-                      "country_id": Config.TurkeyId,
-                      "city_id": selectedCity,
-                      "district_id": selectedDistrict,
-                      "neighborhood_name": neighborhoodName,
-                      "remaining_address": remainingAddress,
-                    };
-                    if (isUpdate) {
-                      _userAddressService.update(address!.id, data).then((value) => {
-                        _updateaddresses(),
-                        Navigator.pop(context),
-                      });
+        return SingleChildScrollView(
+          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+            margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                FutureBuilder<List<City>>(
+                  future: cities,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasData) {
+                      final finalData = snapshot.data!;
+                      return DropdownButtonFormField<int>(
+                        decoration: InputDecoration(labelText: 'Select City'),
+                        isExpanded: true,
+                        value: selectedCity,
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            handleCityChange(newValue);
+                          });
+                        },
+                        items: finalData
+                            .map(
+                              (item) => DropdownMenuItem<int>(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        ).toList(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Failed to load: ${snapshot.error}');
                     } else {
-                      _userAddressService.store(data).then((value) => {
-                        _updateaddresses(),
-                        Navigator.pop(context),
-                      });
+                      return Text('Unknown error');
                     }
-                  } else {
-                    //TODO: Buraya hata mesajı ekle
-                  }
-                },
-                child: Text(isUpdate ? 'Update' : 'Save'),
-              ),
-              const SizedBox(height: 40,),
-            ],
+                  },
+                ),
+                FutureBuilder<List<District>>(
+                  future: districts,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasData) {
+                      final finalData = snapshot.data!;
+                      return DropdownButtonFormField<int>(
+                        decoration: InputDecoration(labelText: 'Select District'),
+                        isExpanded: true,
+                        value: selectedDistrict,
+                        onChanged: (int? newValue) {
+                          setState(() {
+                            handleDistrictChange(newValue);
+                          });
+                        },
+                        items: finalData
+                            .map(
+                              (item) => DropdownMenuItem<int>(
+                            value: item.id,
+                            child: Text(item.name),
+                          ),
+                        ).toList(),
+                      );
+                    } else if (snapshot.hasError) {
+                      return Text('Failed to load: ${snapshot.error}');
+                    } else {
+                      return Text('Unknown error');
+                    }
+                  },
+                ),
+                TextField(
+                  controller: neighborhoodNameController,
+                  decoration: const InputDecoration(
+                    hintText: 'Neighborhood Name',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: remainingAddressController,
+                  decoration: const InputDecoration(
+                    hintText: 'Remaining Address',
+                  ),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    final neighborhoodName = neighborhoodNameController.text;
+                    final remainingAddress = remainingAddressController.text;
+
+                    if (selectedCity != null && selectedDistrict != null  && neighborhoodName.isNotEmpty && remainingAddress.isNotEmpty) {
+                      final data = {
+                        "country_id": Config.TurkeyId,
+                        "city_id": selectedCity,
+                        "district_id": selectedDistrict,
+                        "neighborhood_name": neighborhoodName,
+                        "remaining_address": remainingAddress,
+                      };
+                      if (isUpdate) {
+                        _userAddressService.update(address!.id, data).then((value) => {
+                          _updateaddresses(),
+                          Navigator.pop(context),
+                        });
+                      } else {
+                        _userAddressService.store(data).then((value) => {
+                          _updateaddresses(),
+                          Navigator.pop(context),
+                        });
+                      }
+                    } else {
+                      //TODO: Buraya hata mesajı ekle
+                    }
+                  },
+                  child: Text(isUpdate ? 'Update' : 'Save'),
+                ),
+                const SizedBox(height: 40,),
+              ],
+            ),
           ),
         );
       });
